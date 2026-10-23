@@ -24,10 +24,12 @@ import (
 	"github.com/elnx/sego"
 )
 
-// Text used by the reference tool.
+// Help prose. The option names, metavariables and argument groups mirror the
+// reference CLI because they are its interface; the text describing them is
+// this project's own (see NOTICE.md).
 const (
-	description = "SELinux policy rule search tool."
-	epilog      = "TE/MLS rule searches cannot be mixed with RBAC rule searches."
+	description = "Search the rules of an SELinux binary policy."
+	epilog      = "TE, RBAC and MLS rule types may be combined in one search."
 )
 
 // Argument group headings, in the order argparse prints them. "options" is the
@@ -70,83 +72,83 @@ func (o *option) nameList() string { return strings.Join(o.names, "/") }
 func optionTable() []option {
 	return []option{
 		{names: []string{"-h", "--help"}, dest: "help",
-			help: "show this help message and exit"},
+			help: "Show this help message and exit."},
 		{names: []string{"--version"}, dest: "version",
-			help: "show program's version number and exit"},
+			help: "Show the version and exit."},
 		{names: []string{"-v", "--verbose"}, dest: "verbose",
-			help: "Print extra informational messages"},
-		{names: []string{"--debug"}, dest: "debug", help: "Enable debugging."},
+			help: "Report what is being read and searched on stderr."},
+		{names: []string{"--debug"}, dest: "debug", help: "Print a stack trace when something fails."},
 
 		{names: []string{"-A"}, dest: "A", group: groupTE,
-			help: "Search allow and allowxperm rules."},
+			help: "Match allow and allowxperm rules."},
 		{names: []string{"--allow"}, dest: "allow", group: groupTE,
-			family: "ter", ruleType: sego.Allow, help: "Search allow rules."},
+			family: "ter", ruleType: sego.Allow, help: "Match allow rules."},
 		{names: []string{"--allowxperm"}, dest: "allowxperm", group: groupTE,
-			family: "ter", ruleType: sego.AllowXPerm, help: "Search allowxperm rules."},
+			family: "ter", ruleType: sego.AllowXPerm, help: "Match allowxperm rules."},
 		{names: []string{"--auditallow"}, dest: "auditallow", group: groupTE,
-			family: "ter", ruleType: sego.AuditAllow, help: "Search auditallow rules."},
+			family: "ter", ruleType: sego.AuditAllow, help: "Match auditallow rules."},
 		{names: []string{"--auditallowxperm"}, dest: "auditallowxperm", group: groupTE,
-			family: "ter", ruleType: sego.AuditAllowXPerm, help: "Search auditallowxperm rules."},
+			family: "ter", ruleType: sego.AuditAllowXPerm, help: "Match auditallowxperm rules."},
 		{names: []string{"--dontaudit"}, dest: "dontaudit", group: groupTE,
-			family: "ter", ruleType: sego.DontAudit, help: "Search dontaudit rules."},
+			family: "ter", ruleType: sego.DontAudit, help: "Match dontaudit rules."},
 		{names: []string{"--dontauditxperm"}, dest: "dontauditxperm", group: groupTE,
-			family: "ter", ruleType: sego.DontAuditXPerm, help: "Search dontauditxperm rules."},
+			family: "ter", ruleType: sego.DontAuditXPerm, help: "Match dontauditxperm rules."},
 		{names: []string{"-T", "--type_transition"}, dest: "type_transition", group: groupTE,
-			family: "ter", ruleType: sego.TypeTransition, help: "Search type_transition rules."},
+			family: "ter", ruleType: sego.TypeTransition, help: "Match type_transition rules."},
 		{names: []string{"--type_change"}, dest: "type_change", group: groupTE,
-			family: "ter", ruleType: sego.TypeChange, help: "Search type_change rules."},
+			family: "ter", ruleType: sego.TypeChange, help: "Match type_change rules."},
 		{names: []string{"--type_member"}, dest: "type_member", group: groupTE,
-			family: "ter", ruleType: sego.TypeMember, help: "Search type_member rules."},
+			family: "ter", ruleType: sego.TypeMember, help: "Match type_member rules."},
 
 		{names: []string{"--role_allow"}, dest: "role_allow", group: groupRBAC,
-			family: "rbac", ruleType: sego.RuleRoleAllow, help: "Search role allow rules."},
+			family: "rbac", ruleType: sego.RuleRoleAllow, help: "Match role allow rules."},
 		{names: []string{"--role_transition"}, dest: "role_transition", group: groupRBAC,
-			family: "rbac", ruleType: sego.RuleRoleTransition, help: "Search role_transition rules."},
+			family: "rbac", ruleType: sego.RuleRoleTransition, help: "Match role_transition rules."},
 
 		{names: []string{"--range_transition"}, dest: "range_transition", group: groupMLS,
-			family: "mls", ruleType: sego.RuleRangeTransition, help: "Search range_transition rules."},
+			family: "mls", ruleType: sego.RuleRangeTransition, help: "Match range_transition rules."},
 
 		{names: []string{"-s", "--source"}, metavar: "SOURCE", dest: "source", group: groupExpr,
-			help: "Source type/role of the TE/RBAC rule."},
+			help: "Rule source: a type or type attribute, or a role for RBAC searches."},
 		{names: []string{"-t", "--target"}, metavar: "TARGET", dest: "target", group: groupExpr,
-			help: "Target type/role of the TE/RBAC rule."},
+			help: "Rule target: a type or type attribute, or a role for role allow rules."},
 		{names: []string{"-c", "--class"}, metavar: "TCLASS", dest: "tclass", group: groupExpr,
-			help: "Comma separated list of object classes"},
+			help: "Object classes to match, comma separated."},
 		{names: []string{"-p", "--perms"}, metavar: "PERMS", dest: "perms", group: groupExpr,
-			help: "Comma separated list of permissions. (TE rule searches only.)"},
+			help: "Permissions to match, comma separated (TE rule searches)."},
 		{names: []string{"-x", "--xperms"}, metavar: "XPERMS", dest: "xperms", group: groupExpr,
-			help: "Comma separated list of extended permissions. (TE rule searches only.)"},
+			help: "Extended permissions to match, such as 0x5401 or 0x0000-0x00ff, comma separated (TE rule searches)."},
 		{names: []string{"-D", "--default"}, metavar: "DEFAULT", dest: "default", group: groupExpr,
-			help: "Default of the rule. (type/role/range transition rules)"},
+			help: "Rule default: a type, a role or an MLS range, depending on the rule type."},
 		{names: []string{"-b", "--bool"}, metavar: "BOOL", dest: "boolean", group: groupExpr,
-			help: "Comma separated list of Booleans in the conditional expression. " +
-				"(TE rule searches only.)"},
+			help: "Booleans referenced by the rule's conditional, comma separated " +
+				"(TE rule searches)."},
 
 		{names: []string{"-eb"}, dest: "boolean_equal", group: groupOptions,
-			help: "Match Boolean list exactly instead of matching any listed Boolean."},
+			help: "Match conditionals that reference exactly the listed Booleans."},
 		{names: []string{"-ep"}, dest: "perms_equal", group: groupOptions,
-			help: "Match permission set exactly instead of matching any listed permission."},
+			help: "Match only rules whose permissions are exactly the listed permissions."},
 		{names: []string{"-ex"}, dest: "xperms_equal", group: groupOptions,
-			help: "Match extended permission set exactly instead of matching any listed permission."},
+			help: "Match only rules whose extended permissions are exactly the listed permissions."},
 		{names: []string{"-Sp"}, dest: "perms_subset", group: groupOptions,
-			help: "Match rules where the listed permissions are a subset of the rule permissions."},
+			help: "Match rules that contain all the listed permissions."},
 		{names: []string{"-ds"}, dest: "source_direct", group: groupOptions,
-			help: "Match source attributes directly instead of matching member types/roles."},
+			help: "Match a source attribute directly instead of through its member types."},
 		{names: []string{"-dt"}, dest: "target_direct", group: groupOptions,
-			help: "Match target attributes directly instead of matching member types/roles."},
+			help: "Match a target attribute directly instead of through its member types."},
 		{names: []string{"-rs"}, dest: "source_regex", group: groupOptions,
-			help: "Use regular expression matching for the source type/role."},
+			help: "Match the source as a regular expression."},
 		{names: []string{"-rt"}, dest: "target_regex", group: groupOptions,
-			help: "Use regular expression matching for the target type/role."},
+			help: "Match the target as a regular expression."},
 		{names: []string{"-rc"}, dest: "tclass_regex", group: groupOptions,
-			help: "Use regular expression matching for the object class."},
+			help: "Match object classes as a regular expression."},
 		{names: []string{"-rd"}, dest: "default_regex", group: groupOptions,
-			help: "Use regular expression matching for the default type/role."},
+			help: "Match the default as a regular expression."},
 		{names: []string{"-rb"}, dest: "boolean_regex", group: groupOptions,
-			help: "Use regular expression matching for Booleans."},
+			help: "Match the conditioned Booleans as a regular expression."},
 
 		{names: []string{"policy"}, dest: "policy", pos: true, nargsOpt: true,
-			help: "Path to the SELinux policy to search."},
+			help: "Policy file to read; the running or installed policy is used when omitted."},
 	}
 }
 
@@ -377,12 +379,12 @@ func looksLikeOption(arg string) bool {
 // validate applies the checks argparse performs after parsing.
 func (a *args) validate() error {
 	if len(a.tertypes) == 0 && len(a.rbacrtypes) == 0 && len(a.mlsrtypes) == 0 {
-		return &usageError{"At least one rule type must be specified."}
+		return &usageError{"No rule type was given; select at least one."}
 	}
 	if (a.value("perms") != "" || a.value("xperms") != "" || a.value("boolean") != "") &&
 		(len(a.rbacrtypes) > 0 || len(a.mlsrtypes) > 0) {
-		return &usageError{"-p/--perms, -x/--xperms, and -b/--bool options are only " +
-			"supported with TE rule searches."}
+		return &usageError{"-p/--perms, -x/--xperms and -b/--bool apply to " +
+			"TE rule searches only."}
 	}
 	return nil
 }

@@ -11,9 +11,11 @@ import (
 	"github.com/elnx/sego"
 )
 
-// The usage output is part of the tool's interface: it has to match the
-// setools 4.8 CLI. The expected text below was verified byte for byte against
-// `python3 /path/to/setools/sesearch --help` (setools 4.8) with COLUMNS=80.
+// The usage line, the options, their metavariables and the argument groups are
+// the tool's interface and match the setools CLI; the descriptions are written
+// for this project (see NOTICE.md), so only the layout is comparable with the
+// reference output. The expected text below is this tool's output at
+// COLUMNS=80.
 const goldenUsage = `usage: sesearch [-h] [--version] [-v] [--debug] [-A] [--allow] [--allowxperm]
                 [--auditallow] [--auditallowxperm] [--dontaudit]
                 [--dontauditxperm] [-T] [--type_change] [--type_member]
@@ -24,7 +26,7 @@ const goldenUsage = `usage: sesearch [-h] [--version] [-v] [--debug] [-A] [--all
                 [policy]
 `
 
-// goldenHelp is the full help text, verified the same way.
+// goldenHelp is the full help text at COLUMNS=80.
 const goldenHelp = `usage: sesearch [-h] [--version] [-v] [--debug] [-A] [--allow] [--allowxperm]
                 [--auditallow] [--auditallowxperm] [--dontaudit]
                 [--dontauditxperm] [-T] [--type_change] [--type_member]
@@ -34,79 +36,79 @@ const goldenHelp = `usage: sesearch [-h] [--version] [-v] [--debug] [-A] [--allo
                 [-rs] [-rt] [-rc] [-rd] [-rb]
                 [policy]
 
-SELinux policy rule search tool.
+Search the rules of an SELinux binary policy.
 
 positional arguments:
-  policy                Path to the SELinux policy to search.
+  policy                Policy file to read; the running or installed policy
+                        is used when omitted.
 
 options:
-  -h, --help            show this help message and exit
-  --version             show program's version number and exit
-  -v, --verbose         Print extra informational messages
-  --debug               Enable debugging.
+  -h, --help            Show this help message and exit.
+  --version             Show the version and exit.
+  -v, --verbose         Report what is being read and searched on stderr.
+  --debug               Print a stack trace when something fails.
 
 TE Rule Types:
-  -A                    Search allow and allowxperm rules.
-  --allow               Search allow rules.
-  --allowxperm          Search allowxperm rules.
-  --auditallow          Search auditallow rules.
-  --auditallowxperm     Search auditallowxperm rules.
-  --dontaudit           Search dontaudit rules.
-  --dontauditxperm      Search dontauditxperm rules.
+  -A                    Match allow and allowxperm rules.
+  --allow               Match allow rules.
+  --allowxperm          Match allowxperm rules.
+  --auditallow          Match auditallow rules.
+  --auditallowxperm     Match auditallowxperm rules.
+  --dontaudit           Match dontaudit rules.
+  --dontauditxperm      Match dontauditxperm rules.
   -T, --type_transition
-                        Search type_transition rules.
-  --type_change         Search type_change rules.
-  --type_member         Search type_member rules.
+                        Match type_transition rules.
+  --type_change         Match type_change rules.
+  --type_member         Match type_member rules.
 
 RBAC Rule Types:
-  --role_allow          Search role allow rules.
-  --role_transition     Search role_transition rules.
+  --role_allow          Match role allow rules.
+  --role_transition     Match role_transition rules.
 
 MLS Rule Types:
-  --range_transition    Search range_transition rules.
+  --range_transition    Match range_transition rules.
 
 Expressions:
   -s SOURCE, --source SOURCE
-                        Source type/role of the TE/RBAC rule.
+                        Rule source: a type or type attribute, or a role for
+                        RBAC searches.
   -t TARGET, --target TARGET
-                        Target type/role of the TE/RBAC rule.
+                        Rule target: a type or type attribute, or a role for
+                        role allow rules.
   -c TCLASS, --class TCLASS
-                        Comma separated list of object classes
+                        Object classes to match, comma separated.
   -p PERMS, --perms PERMS
-                        Comma separated list of permissions. (TE rule searches
-                        only.)
+                        Permissions to match, comma separated (TE rule
+                        searches).
   -x XPERMS, --xperms XPERMS
-                        Comma separated list of extended permissions. (TE rule
-                        searches only.)
+                        Extended permissions to match, such as 0x5401 or
+                        0x0000-0x00ff, comma separated (TE rule searches).
   -D DEFAULT, --default DEFAULT
-                        Default of the rule. (type/role/range transition
-                        rules)
-  -b BOOL, --bool BOOL  Comma separated list of Booleans in the conditional
-                        expression. (TE rule searches only.)
+                        Rule default: a type, a role or an MLS range,
+                        depending on the rule type.
+  -b BOOL, --bool BOOL  Booleans referenced by the rule's conditional, comma
+                        separated (TE rule searches).
 
 Search options:
-  -eb                   Match Boolean list exactly instead of matching any
-                        listed Boolean.
-  -ep                   Match permission set exactly instead of matching any
-                        listed permission.
-  -ex                   Match extended permission set exactly instead of
-                        matching any listed permission.
-  -Sp                   Match rules where the listed permissions are a subset
-                        of the rule permissions.
-  -ds                   Match source attributes directly instead of matching
-                        member types/roles.
-  -dt                   Match target attributes directly instead of matching
-                        member types/roles.
-  -rs                   Use regular expression matching for the source
-                        type/role.
-  -rt                   Use regular expression matching for the target
-                        type/role.
-  -rc                   Use regular expression matching for the object class.
-  -rd                   Use regular expression matching for the default
-                        type/role.
-  -rb                   Use regular expression matching for Booleans.
+  -eb                   Match conditionals that reference exactly the listed
+                        Booleans.
+  -ep                   Match only rules whose permissions are exactly the
+                        listed permissions.
+  -ex                   Match only rules whose extended permissions are
+                        exactly the listed permissions.
+  -Sp                   Match rules that contain all the listed permissions.
+  -ds                   Match a source attribute directly instead of through
+                        its member types.
+  -dt                   Match a target attribute directly instead of through
+                        its member types.
+  -rs                   Match the source as a regular expression.
+  -rt                   Match the target as a regular expression.
+  -rc                   Match object classes as a regular expression.
+  -rd                   Match the default as a regular expression.
+  -rb                   Match the conditioned Booleans as a regular
+                        expression.
 
-TE/MLS rule searches cannot be mixed with RBAC rule searches.
+TE, RBAC and MLS rule types may be combined in one search.
 `
 
 // runSesearch runs the tool with a fixed program name and reports its exit
@@ -173,20 +175,20 @@ func TestUsageErrors(t *testing.T) {
 		want string // the error line, after the usage block
 	}{
 		{"no arguments", nil,
-			"sesearch: error: At least one rule type must be specified."},
+			"sesearch: error: No rule type was given; select at least one."},
 		{"policy only", []string{"policy.pol"},
-			"sesearch: error: At least one rule type must be specified."},
+			"sesearch: error: No rule type was given; select at least one."},
 		{"expressions without a rule type", []string{"-s", "app_t", "-c", "file"},
-			"sesearch: error: At least one rule type must be specified."},
+			"sesearch: error: No rule type was given; select at least one."},
 		{"perms with rbac rules", []string{"--role_allow", "-p", "read"},
-			"sesearch: error: -p/--perms, -x/--xperms, and -b/--bool options are " +
-				"only supported with TE rule searches."},
+			"sesearch: error: -p/--perms, -x/--xperms and -b/--bool apply to " +
+				"TE rule searches only."},
 		{"xperms with mls rules", []string{"--range_transition", "-x", "0x1234"},
-			"sesearch: error: -p/--perms, -x/--xperms, and -b/--bool options are " +
-				"only supported with TE rule searches."},
+			"sesearch: error: -p/--perms, -x/--xperms and -b/--bool apply to " +
+				"TE rule searches only."},
 		{"bool with rbac rules", []string{"--role_allow", "-b", "c_alpha"},
-			"sesearch: error: -p/--perms, -x/--xperms, and -b/--bool options are " +
-				"only supported with TE rule searches."},
+			"sesearch: error: -p/--perms, -x/--xperms and -b/--bool apply to " +
+				"TE rule searches only."},
 		{"unambiguous abbreviation needs a value", []string{"--allow", "--s"},
 			"sesearch: error: argument -s/--source: expected one argument"},
 		{"ambiguous long option", []string{"--allow", "--a"},
@@ -327,7 +329,7 @@ func equalRuleTypes(got, want []sego.RuleType) bool {
 // TestRuntimeErrorGoesToStdout checks that a query error prints the message on
 // stdout and exits 1, while the usage errors above go to stderr with status 2.
 func TestRuntimeErrorGoesToStdout(t *testing.T) {
-	const policy = "../../policy/testdata/terulequery_v30.pol"
+	const policy = "../../policy/testdata/te_semantics-v30.pol"
 	if _, err := os.Stat(policy); err != nil {
 		t.Skipf("the policy fixture is missing: %v", err)
 	}

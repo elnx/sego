@@ -153,8 +153,9 @@ range_transition server_t data_t:socket s1:c1.c2;
 `-s`/`-t` match through type attributes unless `-ds`/`-dt` are given, `-rs`,
 `-rt`, `-rc`, `-rd` and `-rb` switch the corresponding criterion to regular
 expression matching, and `-eb`, `-ep`, `-ex` require exact matches instead of
-overlap. `--help` lists every option with the same wording and grouping as the
-reference tool.
+overlap. `--help` lists the same options, metavariables and argument groups as
+the reference tool, in the same order and layout; the descriptions are this
+project's own (see [NOTICE.md](NOTICE.md)).
 
 Errors follow the reference tool exactly:
 
@@ -166,7 +167,7 @@ Errors follow the reference tool exactly:
   on **stdout** and exits **1**.
 
 ```
-$ ./bin/sesearch --allow -s nosuch policy/testdata/terulequery_v30.pol
+$ ./bin/sesearch --allow -s nosuch testdata/policies/sego_test-v32.pol
 nosuch is not a valid type attribute
 $ echo $?
 1
@@ -227,6 +228,20 @@ Known differences that follow from the implementation, not from the reference:
   wording of a syntax error differ from Python's `re`. Back references and
   lookaround are not supported; the common constructs behave the same.
 * `--debug` prints a Go stack trace where the reference prints a Python one.
+* The `--help` and usage text keeps the reference tool's options,
+  metavariables, argument groups and layout, because that is the interface
+  scripts and muscle memory rely on, but the descriptions are written for this
+  project instead of copied from the reference (see [NOTICE.md](NOTICE.md)), so
+  the prose differs line by line while the flags do not.
+* An MLS range criterion (`--range_transition -D`) against a policy compiled
+  without MLS fails in both tools, but the reference raises an exception whose
+  message is empty, so it prints a blank line; here it reports
+  `MLS is not enabled in this policy`.
+* The two usage errors this tool raises itself name the same conditions in this
+  project's wording (`sesearch: error: No rule type was given; select at
+  least one.` where the reference says `At least one rule type must be
+  specified.`); the usage block, the option names and the exit status are
+  unchanged.
 * When several permissions are unknown, the reference lists them in the
   iteration order of a Python `set` (`Permission(s) do not exist any class:
   write, read`); here they are listed in the order the criteria were given
@@ -293,8 +308,18 @@ setools 4.8 for `-Sp`, the v33/v35 fixtures, the `sego_nlmsg` fixtures and the
 recipe, which oracle produced which case, the provenance of every case, and the
 known differences between the two reference versions.
 
-Neither `testdata/` nor the repository carries a licence statement of its own,
-so the licence of the recorded golden output can only be derived: it is output
-of the setools tools (`sesearch` is GPL-2.0-only, see `COPYING` in a setools
-tree), while the policy sources and the generator scripts are written for this
-repository.
+Everything under `testdata/` is written for this project: the policy sources are
+hand written, the compiled fixtures are generated from them by the checked-in
+scripts, and the goldens record the *output* of the reference tools for queries
+over our own sources. No setools file, source or binary is redistributed here;
+[NOTICE.md](NOTICE.md) describes the provenance in detail.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Copyright (c) 2026 elnx.
+
+The module has no Go dependencies outside the standard library, and the source
+tree contains no third-party code - [NOTICE.md](NOTICE.md) records which
+implementations the behaviour was written against (libsepol for the policy
+format, setools for the tool behaviour) and why reproducing their *interface*
+does not make this a derivative work of them.

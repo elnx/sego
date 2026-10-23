@@ -1,6 +1,9 @@
 package sego
 
-import "regexp"
+import (
+	"errors"
+	"regexp"
+)
 
 // RangeMatchMode selects how an MLS range criterion is compared against a
 // rule's range. The default is an exact match; the other modes mirror setools'
@@ -118,6 +121,11 @@ func (q *MLSRuleQuery) SetClassPattern(pattern string) error {
 // SetRange matches the rule's default range. The range text is resolved
 // against the policy, e.g. "s0:c0.c3" or "s0:c0 - s3:c1".
 func (q *MLSRuleQuery) SetRange(text string) error {
+	if !q.policy.MLS() {
+		// A range needs MLS symbols, so a policy compiled without MLS
+		// cannot answer the criterion at all.
+		return errors.New("MLS is not enabled in this policy")
+	}
 	rng, err := q.policy.ParseRange(text)
 	if err != nil {
 		return err

@@ -77,7 +77,7 @@ func TestXPermSetOperations(t *testing.T) {
 }
 
 func TestAVRuleXpermRendering(t *testing.T) {
-	p := loadPolicy(t, "terulequery2_v30.pol")
+	p := loadPolicy(t, "xperm-v30.pol")
 	class := p.Classes()[0]
 
 	tests := []struct {
@@ -126,7 +126,7 @@ func TestAVRuleXpermRendering(t *testing.T) {
 }
 
 func TestFileNameTERuleRendering(t *testing.T) {
-	p := loadPolicy(t, "terulequery2_v30.pol")
+	p := loadPolicy(t, "xperm-v30.pol")
 	rule := &FileNameTERule{
 		Source:   p.Types()[0],
 		Target:   p.Types()[1],
@@ -144,7 +144,7 @@ func TestFileNameTERuleRendering(t *testing.T) {
 // TestConditionalRendering covers the postfix to infix conversion, including
 // setools' right-operand-first ordering and its precedence bookkeeping.
 func TestConditionalRendering(t *testing.T) {
-	p := loadPolicy(t, "terulequery_v30.pol")
+	p := loadPolicy(t, "te_semantics-v30.pol")
 	boolValue := func(name string) uint32 {
 		b, err := p.BooleanByName(name)
 		if err != nil {
@@ -160,49 +160,49 @@ func TestConditionalRendering(t *testing.T) {
 		{
 			name: "single boolean",
 			exprs: []policy.CondExpr{
-				{ExprType: policy.CondBool, Boolean: boolValue("test200")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_one")},
 			},
-			want: "test200",
+			want: "c_one",
 		},
 		{
 			name: "and",
 			exprs: []policy.CondExpr{
-				{ExprType: policy.CondBool, Boolean: boolValue("test200")},
-				{ExprType: policy.CondBool, Boolean: boolValue("test200a")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_one")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_two")},
 				{ExprType: policy.CondAnd},
 			},
-			want: "test200a && test200",
+			want: "c_two && c_one",
 		},
 		{
 			name: "or",
 			exprs: []policy.CondExpr{
-				{ExprType: policy.CondBool, Boolean: boolValue("test200")},
-				{ExprType: policy.CondBool, Boolean: boolValue("test200a")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_one")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_two")},
 				{ExprType: policy.CondOr},
 			},
-			want: "test200a || test200",
+			want: "c_two || c_one",
 		},
 		{
 			name: "not",
 			exprs: []policy.CondExpr{
-				{ExprType: policy.CondBool, Boolean: boolValue("test200")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_one")},
 				{ExprType: policy.CondNot},
 			},
-			want: "! test200",
+			want: "! c_one",
 		},
 		{
 			name: "nested",
 			exprs: []policy.CondExpr{
-				{ExprType: policy.CondBool, Boolean: boolValue("test200")},
-				{ExprType: policy.CondBool, Boolean: boolValue("test200a")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_one")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_two")},
 				{ExprType: policy.CondOr},
-				{ExprType: policy.CondBool, Boolean: boolValue("test200")},
+				{ExprType: policy.CondBool, Boolean: boolValue("c_one")},
 				{ExprType: policy.CondAnd},
 			},
 			// setools renders the right operand first and tracks the
 			// previous operator's precedence, so this is the expected
 			// (if surprising) output.
-			want: "( test200 && test200a || test200 )",
+			want: "( c_one && c_two || c_one )",
 		},
 	}
 	for _, tc := range tests {
@@ -216,7 +216,7 @@ func TestConditionalRendering(t *testing.T) {
 }
 
 func TestLevelAndRangeRendering(t *testing.T) {
-	p := loadPolicy(t, "mlsrulequery_v30.pol")
+	p := loadPolicy(t, "mls_ranges-v30.pol")
 	tests := []struct {
 		text string
 		want string
@@ -243,7 +243,7 @@ func TestLevelAndRangeRendering(t *testing.T) {
 }
 
 func TestParseRangeErrors(t *testing.T) {
-	p := loadPolicy(t, "mlsrulequery_v30.pol")
+	p := loadPolicy(t, "mls_ranges-v30.pol")
 	if _, err := p.ParseRange("nosuch"); err == nil {
 		t.Error("expected an error for an unknown sensitivity")
 	}
@@ -256,21 +256,21 @@ func TestParseRangeErrors(t *testing.T) {
 }
 
 func TestMatchIndirect(t *testing.T) {
-	p := loadPolicy(t, "terulequery_v30.pol")
-	attr, err := p.TypeByName("test2a") // attribute with member test2s
+	p := loadPolicy(t, "te_semantics-v30.pol")
+	attr, err := p.TypeByName("src_indirect") // attribute with member src_indirect_member
 	if err != nil {
 		t.Fatal(err)
 	}
-	plain, err := p.TypeByName("test2s")
+	plain, err := p.TypeByName("src_indirect_member")
 	if err != nil {
 		t.Fatal(err)
 	}
-	other, err := p.TypeByName("test2t")
+	other, err := p.TypeByName("tgt_indirect")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(attr.Expand()) == 0 {
-		t.Fatal("attribute test2a has no members")
+		t.Fatal("attribute src_indirect has no members")
 	}
 	if !matchIndirect(plain, attr, true, nil) {
 		t.Error("indirect match should find the member type")
