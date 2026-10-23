@@ -17,6 +17,11 @@ endif
 
 GO ?= go
 PKG := ./cmd/sesearch
+
+# Tests, vet and code intelligence always run for the host platform, even when
+# GOOS/GOARCH are set on the command line for a cross build.
+HOST_GOOS := $(shell $(GO) env GOHOSTOS)
+HOST_GOARCH := $(shell $(GO) env GOHOSTARCH)
 LDFLAGS := -X main.version=$(VERSION)
 
 # GOOS/GOARCH default to the host, so `make build` is a native build and
@@ -49,7 +54,7 @@ build:
 # matrix. Tests run on the host, not for GOOS/GOARCH. No network access and no
 # installed SELinux policy are needed.
 test:
-	$(GO) test ./...
+	GOOS=$(HOST_GOOS) GOARCH=$(HOST_GOARCH) $(GO) test ./...
 
 # Format, vet and (when available) type check.
 lint:
@@ -57,7 +62,7 @@ lint:
 	if [ -n "$$unformatted" ]; then \
 		echo "gofmt -l .:"; echo "$$unformatted"; exit 1; \
 	fi
-	$(GO) vet ./...
+	GOOS=$(HOST_GOOS) GOARCH=$(HOST_GOARCH) $(GO) vet ./...
 	@if command -v gopls >/dev/null 2>&1; then \
 		gopls check $$(find . -name '*.go' -not -path './testdata/*'); \
 	else \
