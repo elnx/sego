@@ -1,0 +1,1 @@
+allow client_t log_t:chr_file ioctl;

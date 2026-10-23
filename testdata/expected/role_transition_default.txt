@@ -1,0 +1,2 @@
+role_transition r_admin app_t:process r_ops;
+role_transition r_user app_t:process r_ops;

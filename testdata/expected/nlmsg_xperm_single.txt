@@ -1,0 +1,1 @@
+allowxperm app_t data_t:netlink_socket nlmsg 0x0009;

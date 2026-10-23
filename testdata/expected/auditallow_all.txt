@@ -1,0 +1,3 @@
+auditallow app_t data_t:process transition;
+auditallow client_t log_t:file lock;
+auditallow domain special_attr:dir search;

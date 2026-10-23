@@ -1,0 +1,3 @@
+role_transition r_ops config_t:file r_user;
+role_transition r_ops data_t:file r_admin;
+role_transition r_ops log_t:file r_user;

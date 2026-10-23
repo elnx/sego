@@ -1,0 +1,6 @@
+allow app_t data_t:file read; [ c_nlmsg ]:True
+allow app_t data_t:file { read write };
+allow app_t data_t:netlink_socket { nlmsg recv send };
+allowxperm app_t data_t:netlink_socket nlmsg 0x0009;
+allowxperm domain data_t:netlink_socket nlmsg 0x0001-0x0002;
+allowxperm server_t data_t:netlink_socket nlmsg { 0x0010 0x0020 };

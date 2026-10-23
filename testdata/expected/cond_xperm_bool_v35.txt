@@ -1,0 +1,2 @@
+allowxperm app_t data_t:chr_file ioctl 0x5401;
+allowxperm app_t data_t:netlink_socket nlmsg 0x0001-0x0002;

@@ -1,0 +1,11 @@
+allow app_t data_t:file { read write };
+allow app_t log_t:file { read write }; [ ! c_beta && c_alpha ]:True
+allow client_t config_t:dir search; [ ! c_beta && c_alpha ]:True
+allow client_t log_t:dir open; [ c_delta || c_beta ]:True
+allow client_t log_t:dir search; [ c_delta || c_beta ]:False
+allow domain data_attr:file read;
+allow legacy_t data_t:file lock;
+allow plain_t special_attr:file write;
+allow server_t data_t:dir open; [ ( c_alpha && c_delta || c_gamma ) ]:True
+allow server_t log_t:file read; [ ( c_alpha && c_delta || c_gamma ) ]:True
+allow special_attr data_t:dir { open search };

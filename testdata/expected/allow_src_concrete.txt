@@ -1,0 +1,6 @@
+allow app_t app_t:process sigchld;
+allow app_t config_t:socket connect; [ c_gamma || c_beta ]:True
+allow app_t data_t:file { read write };
+allow app_t data_t:process sigchld; [ ! c_beta && c_alpha ]:True
+allow app_t log_t:file { read write }; [ ! c_beta && c_alpha ]:True
+allow domain data_attr:file read;

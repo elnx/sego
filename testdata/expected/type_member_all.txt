@@ -1,0 +1,4 @@
+type_member app_t config_t:file default_t;
+type_member app_t data_t:process default_t;
+type_member client_t config_t:file default_t;
+type_member server_t config_t:file default_t;

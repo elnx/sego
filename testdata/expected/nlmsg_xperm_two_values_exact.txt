@@ -1,0 +1,1 @@
+allowxperm server_t data_t:netlink_socket nlmsg { 0x0010 0x0020 };

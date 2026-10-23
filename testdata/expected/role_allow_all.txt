@@ -1,0 +1,3 @@
+allow r_admin r_ops;
+allow r_admin r_user;
+allow r_user r_ops;

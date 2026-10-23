@@ -1,0 +1,3 @@
+allow app_t data_t:process sigchld; [ ! c_beta && c_alpha ]:True
+allow app_t log_t:file { read write }; [ ! c_beta && c_alpha ]:True
+allow client_t config_t:dir search; [ ! c_beta && c_alpha ]:True

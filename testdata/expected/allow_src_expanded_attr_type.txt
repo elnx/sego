@@ -1,0 +1,1 @@
+allow legacy_t data_t:file lock;

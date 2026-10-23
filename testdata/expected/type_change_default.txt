@@ -1,0 +1,4 @@
+type_change app_t data_t:file default_t;
+type_change app_t log_t:dir default_t;
+type_change client_t log_t:dir default_t;
+type_change server_t log_t:dir default_t;

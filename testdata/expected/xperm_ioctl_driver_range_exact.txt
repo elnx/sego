@@ -1,0 +1,1 @@
+allowxperm client_t log_t:chr_file ioctl 0x0000-0x00ff;

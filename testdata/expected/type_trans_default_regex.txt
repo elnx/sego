@@ -1,0 +1,7 @@
+type_transition app_t data_t:file default_t sego_app_only;
+type_transition app_t data_t:file default_t sego_shared;
+type_transition app_t data_t:file default_t;
+type_transition app_t data_t:process default_t;
+type_transition client_t data_t:file default_t;
+type_transition client_t log_t:socket default_t;
+type_transition server_t data_t:file default_t;

@@ -1,0 +1,5 @@
+allow client_t config_t:dir search; [ ! c_beta && c_alpha ]:True
+allow client_t log_t:dir open; [ c_delta || c_beta ]:True
+allow client_t log_t:dir search; [ c_delta || c_beta ]:False
+allow server_t data_t:dir open; [ ( c_alpha && c_delta || c_gamma ) ]:True
+allow special_attr data_t:dir { open search };

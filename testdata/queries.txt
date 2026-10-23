@@ -1,0 +1,182 @@
+# sego sesearch query matrix.
+#
+# One case per line, tab separated.  Lines starting with '#' and blank lines are
+# ignored.  Fields, in order:
+#
+#   1  case name          also the file name stem of expected/<case>.txt
+#                         (matches [A-Za-z0-9_.-]+)
+#   2  policy fixture     path relative to the repository root, e.g.
+#                         testdata/policies/sego_test-v32.pol
+#   3  arguments          the exact argv, arguments only (no program name),
+#                         separated by single spaces; no argument contains a
+#                         space, so a plain split on ' ' recovers the argv
+#   4  expected exit code present only for cases whose exit status is not 0
+#                         (the only such case is no_ruletype, exit 2)
+#
+# A line therefore has exactly 3 tabs-separated fields, or 4 when the exit code
+# is not 0, e.g.
+#
+#   allow_all<TAB>testdata/policies/sego_test-v32.pol<TAB>--allow
+#   no_ruletype<TAB>testdata/policies/sego_test-v32.pol<TAB>-s app_t<TAB>2
+#
+# expected/<case>.txt holds the exact stdout of the reference tool for that
+# argv, byte for byte, including the trailing newline.  A case that matches
+# nothing has an existing but empty (0 byte) expected file; the cases that are
+# deliberately empty are listed in expected/README.md.
+#
+# Provenance of the golden outputs (see expected/README.md for the full story):
+#
+#   * 74 of the 103 cases are recorded from the reference oracle
+#     /usr/bin/sesearch (setools 4.2.2).  For that oracle the 4.8 spelling of
+#     two options is translated when the CLI does not accept it:
+#     --role_transition -> --role_trans, --range_transition -> --range_trans
+#     (-T exists in both).  The translation is a pure rename; gen_expected.sh
+#     does it for the 4.2.2 runs.
+#   * 29 cases are recorded from the setools 4.8 CLI (built from the in-tree
+#     setools; see expected/README.md) because 4.2.2 cannot express the argv
+#     (-Sp) or cannot read the fixture (-v33/-v35, sego_nlmsg, extra_cond_xperm):
+#     + the three "-Sp" cases -- the flag is 4.8 only, the 4.2.2 library
+#       implements the same perms_subset semantics but has no switch for it;
+#     + the -v33/-v35, sego_nlmsg (libsepol 3.0 cannot decode nlmsg extended
+#       permissions at all) and extra_cond_xperm (conditional extended
+#       permissions, policy version 34+) cases -- 4.2.2 stops at version 32;
+#     + seven cases that 4.2.2 *can* run but prints differently: complete ioctl
+#       driver ranges (0x0000-0x00ff) are printed as "0x0000" and do not match
+#       "-x 0x0000-0x00ff -ex" there, and the corpus is kept consistent with the
+#       4.8 CLI.  exact list: allowxperm_all, allow_and_allowxperm,
+#       te_xperm_ruletypes, te_mixed_ruletypes, xperm_ioctl_driver_range,
+#       xperm_ioctl_driver_range_exact, xperm_ioctl_driver_range_v30;
+#     + the two legacy_neverallow* cases, whose point is the 4.8 usage error.
+#   * the two "legacy_neverallow*" cases use the --neverallow/--neverallowxperm
+#     flags that exist in setools 4.2.2 but were removed from the 4.8 CLI.  They
+#     assert 4.8 CLI parity: the invocation must fail with the argparse usage
+#     error, i.e. exit status 2 and empty stdout (the usage text goes to stderr,
+#     which is not part of the golden).  Their recorded exit status therefore
+#     comes from the 4.8 oracle, not from 4.2.2, which still accepts the flags
+#     and exits 0.
+#
+# Regenerate the goldens with testdata/gen_expected.sh (see expected/README.md).
+#
+# ---------------------------------------------------------------------------
+# rule types, one flag at a time, -A, and combinations
+allow_all	testdata/policies/sego_test-v32.pol	--allow
+allowxperm_all	testdata/policies/sego_test-v32.pol	--allowxperm
+auditallow_all	testdata/policies/sego_test-v32.pol	--auditallow
+auditallowxperm_all	testdata/policies/sego_test-v32.pol	--auditallowxperm
+dontaudit_all	testdata/policies/sego_test-v32.pol	--dontaudit
+dontauditxperm_all	testdata/policies/sego_test-v32.pol	--dontauditxperm
+type_trans_all	testdata/policies/sego_test-v32.pol	-T
+type_change_all	testdata/policies/sego_test-v32.pol	--type_change
+type_member_all	testdata/policies/sego_test-v32.pol	--type_member
+role_allow_all	testdata/policies/sego_test-v32.pol	--role_allow
+role_transition_all	testdata/policies/sego_test-v32.pol	--role_transition
+range_transition_all	testdata/policies/sego_test-v32.pol	--range_transition
+allow_and_allowxperm	testdata/policies/sego_test-v32.pol	-A
+te_plain_ruletypes	testdata/policies/sego_test-v32.pol	--allow --auditallow --dontaudit
+te_xperm_ruletypes	testdata/policies/sego_test-v32.pol	--allowxperm --auditallowxperm --dontauditxperm
+te_mixed_ruletypes	testdata/policies/sego_test-v32.pol	--allow --allowxperm --dontauditxperm
+# neverallow/neverallowxperm: the rules are assertions and never reach the
+# binary policy.  neverallow_absent_* look for exactly the rule/permission the
+# neverallow rules forbid and must match nothing (exit 0; both oracles agree).
+# The two legacy_* cases use the --neverallow/--neverallowxperm flags, which
+# setools 4.8 removed: their argv must fail as a usage error (exit 2, empty
+# stdout, usage on stderr), which is the 4.8 CLI parity assertion recorded from
+# the 4.8 oracle.
+neverallow_absent_te	testdata/policies/sego_test-v32.pol	--allow -s plain_t -t config_t -c file -p read
+neverallow_absent_xperm	testdata/policies/sego_test-v32.pol	--allowxperm -s plain_t -t data_t -c chr_file -x 0x1234
+legacy_neverallow_te	testdata/policies/sego_test-v32.pol	--neverallow	2
+legacy_neverallowxperm_te	testdata/policies/sego_test-v32.pol	--neverallowxperm	2
+# source / target selection: concrete type, attribute (indirect and direct), regex
+allow_src_concrete	testdata/policies/sego_test-v32.pol	--allow -s app_t
+allow_tgt_concrete	testdata/policies/sego_test-v32.pol	--allow -t data_t
+allow_src_attr_indirect	testdata/policies/sego_test-v32.pol	--allow -s domain
+allow_src_attr_direct	testdata/policies/sego_test-v32.pol	--allow -s domain -ds
+allow_tgt_attr_indirect	testdata/policies/sego_test-v32.pol	--allow -t special_attr
+allow_tgt_attr_direct	testdata/policies/sego_test-v32.pol	--allow -t special_attr -dt
+allow_src_attr_tgt_concrete	testdata/policies/sego_test-v32.pol	--allow -s special_attr -t data_t
+allow_src_regex	testdata/policies/sego_test-v32.pol	--allow -s .*_t -rs
+allow_tgt_regex	testdata/policies/sego_test-v32.pol	--allow -t data_.* -rt
+allow_src_tgt_concrete	testdata/policies/sego_test-v32.pol	--allow -s app_t -t data_t
+allow_src_expanded_attr	testdata/policies/sego_test-v32.pol	--allow -s legacy_attr
+allow_src_expanded_attr_type	testdata/policies/sego_test-v32.pol	--allow -s legacy_t
+type_trans_src_attr	testdata/policies/sego_test-v32.pol	-T -s domain
+type_trans_src_attr_direct	testdata/policies/sego_test-v32.pol	-T -s domain -ds
+# object classes: one class, a comma list, a regex, class+perms
+allow_class_single	testdata/policies/sego_test-v32.pol	--allow -c file
+allow_class_list	testdata/policies/sego_test-v32.pol	--allow -c file,dir
+allow_class_regex	testdata/policies/sego_test-v32.pol	--allow -c .*_file -rc
+allow_class_perm	testdata/policies/sego_test-v32.pol	--allow -c dir -p search,open
+role_transition_class	testdata/policies/sego_test-v32.pol	--role_transition -c file
+range_transition_class	testdata/policies/sego_test-v32.pol	--range_transition -c file
+# permissions: single, list, exact, subset
+allow_perm_single	testdata/policies/sego_test-v32.pol	--allow -p read
+allow_perm_multiple	testdata/policies/sego_test-v32.pol	--allow -p read,write
+allow_perm_exact	testdata/policies/sego_test-v32.pol	--allow -p read,write -ep
+allow_perm_subset	testdata/policies/sego_test-v32.pol	--allow -p read -Sp
+allow_perm_subset_multiple	testdata/policies/sego_test-v32.pol	--allow -p read,write -Sp
+allow_perm_subset_class	testdata/policies/sego_test-v32.pol	--allow -c file -p read -Sp
+# extended permissions: single value, complete driver range, one run, two runs
+xperm_ioctl_single	testdata/policies/sego_test-v32.pol	--allowxperm -x 0x5401
+xperm_ioctl_single_exact	testdata/policies/sego_test-v32.pol	--allowxperm -x 0x5401 -ex
+xperm_ioctl_driver_range	testdata/policies/sego_test-v32.pol	--allowxperm -x 0x0000-0x00ff
+xperm_ioctl_driver_range_exact	testdata/policies/sego_test-v32.pol	--allowxperm -x 0x0000-0x00ff -ex
+xperm_ioctl_driver_start	testdata/policies/sego_test-v32.pol	--allowxperm -x 0x1000
+xperm_ioctl_two_runs	testdata/policies/sego_test-v32.pol	--allowxperm -x 0x1000-0x1010,0x2000-0x2005
+xperm_ioctl_two_runs_exact	testdata/policies/sego_test-v32.pol	--allowxperm -x 0x1000-0x1010,0x2000-0x2005 -ex
+xperm_ioctl_src_attr	testdata/policies/sego_test-v32.pol	--allowxperm -s domain -x 0x5404
+xperm_ioctl_src_attr_direct	testdata/policies/sego_test-v32.pol	--allowxperm -s domain -x 0x5404 -ds
+xperm_auditallow_single	testdata/policies/sego_test-v32.pol	--auditallowxperm -x 0x5402
+xperm_dontaudit_single	testdata/policies/sego_test-v32.pol	--dontauditxperm -x 0x5403
+xperm_nomatch	testdata/policies/sego_test-v32.pol	--allowxperm -x 0xdead
+# default type/role/range matching (-D, with and without -rd)
+type_trans_default_concrete	testdata/policies/sego_test-v32.pol	-T -D default_t
+type_trans_default_regex	testdata/policies/sego_test-v32.pol	-T -D default.* -rd
+type_trans_tgt_and_default	testdata/policies/sego_test-v32.pol	-T -t data_t -D default_t
+type_trans_src_regex_default	testdata/policies/sego_test-v32.pol	-T -s app.* -rs -D default_t
+type_change_default	testdata/policies/sego_test-v32.pol	--type_change -D default_t
+type_member_default	testdata/policies/sego_test-v32.pol	--type_member -D default_t
+role_transition_default	testdata/policies/sego_test-v32.pol	--role_transition -D r_ops
+role_transition_src_tgt	testdata/policies/sego_test-v32.pol	--role_transition -s r_ops -t data_t
+role_allow_src	testdata/policies/sego_test-v32.pol	--role_allow -s r_admin
+role_allow_tgt	testdata/policies/sego_test-v32.pol	--role_allow -t r_user
+range_transition_default	testdata/policies/sego_test-v32.pol	--range_transition -D s1
+range_transition_default_range	testdata/policies/sego_test-v32.pol	--range_transition -D s1-s3
+range_transition_src_attr	testdata/policies/sego_test-v32.pol	--range_transition -s domain
+range_transition_src_attr_direct	testdata/policies/sego_test-v32.pol	--range_transition -s domain -ds
+# booleans in conditional expressions (-b, -eb, -rb)
+allow_bool_single	testdata/policies/sego_test-v32.pol	--allow -b c_alpha
+allow_bool_multi	testdata/policies/sego_test-v32.pol	--allow -b c_alpha,c_beta
+allow_bool_exact	testdata/policies/sego_test-v32.pol	--allow -b c_alpha,c_beta -eb
+allow_bool_regex	testdata/policies/sego_test-v32.pol	--allow -b c_a.* -rb
+allow_bool_and_class	testdata/policies/sego_test-v32.pol	--allow -b c_gamma -c socket
+allow_bool_nomatch	testdata/policies/sego_test-v32.pol	--allow -b c_delta -eb
+# empty result cases
+allow_nomatch_src	testdata/policies/sego_test-v32.pol	--allow -s default_t
+dontaudit_class_nomatch	testdata/policies/sego_test-v32.pol	--dontaudit -c process
+type_trans_nomatch_tgt	testdata/policies/sego_test-v32.pol	-T -t config_t
+# deliberate argument error: no rule type given (exit status column, empty stdout)
+no_ruletype	testdata/policies/sego_test-v32.pol	-s app_t	2
+# version specific fixtures: v30 (readable by both oracles), v33/v35 (4.8 only)
+allow_class_single_v30	testdata/policies/sego_test-v30.pol	--allow -c file
+type_trans_v30	testdata/policies/sego_test-v30.pol	-T
+xperm_ioctl_driver_range_v30	testdata/policies/sego_test-v30.pol	--allowxperm -x 0x0000-0x00ff
+range_transition_v30	testdata/policies/sego_test-v30.pol	--range_transition
+allow_class_single_v33	testdata/policies/sego_test-v33.pol	--allow -c file
+type_trans_v33	testdata/policies/sego_test-v33.pol	-T
+allow_class_single_v35	testdata/policies/sego_test-v35.pol	--allow -c file
+type_trans_v35	testdata/policies/sego_test-v35.pol	-T
+range_transition_v35	testdata/policies/sego_test-v35.pol	--range_transition
+# nlmsg extended permissions (sego_nlmsg fixtures; 4.8 oracle only)
+nlmsg_allowxperm_all	testdata/policies/sego_nlmsg-v32.pol	--allowxperm
+nlmsg_xperm_single	testdata/policies/sego_nlmsg-v32.pol	--allowxperm -x 0x0009
+nlmsg_xperm_range	testdata/policies/sego_nlmsg-v32.pol	--allowxperm -x 0x0001-0x0002
+nlmsg_xperm_two_values_exact	testdata/policies/sego_nlmsg-v32.pol	--allowxperm -x 0x0010,0x0020 -ex
+nlmsg_auditallowxperm	testdata/policies/sego_nlmsg-v32.pol	--auditallowxperm
+nlmsg_dontauditxperm	testdata/policies/sego_nlmsg-v32.pol	--dontauditxperm
+nlmsg_allow_and_xperm	testdata/policies/sego_nlmsg-v32.pol	-A
+nlmsg_xperm_nomatch	testdata/policies/sego_nlmsg-v32.pol	--allowxperm -x 0x00ff
+# extended permissions inside a conditional (extra_cond_xperm fixture, version 35, 4.8 oracle only)
+cond_xperm_all_v35	testdata/policies/extra_cond_xperm-v35.pol	--allowxperm
+cond_xperm_value_v35	testdata/policies/extra_cond_xperm-v35.pol	--allowxperm -x 0x5401
+cond_xperm_bool_v35	testdata/policies/extra_cond_xperm-v35.pol	--allowxperm -b c_cond_xperm
+cond_xperm_dontaudit_all_v35	testdata/policies/extra_cond_xperm-v35.pol	--dontauditxperm

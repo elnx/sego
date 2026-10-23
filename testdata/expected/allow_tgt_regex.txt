@@ -1,0 +1,7 @@
+allow app_t data_t:file { read write };
+allow app_t data_t:process sigchld; [ ! c_beta && c_alpha ]:True
+allow client_t data_t:netlink_socket nlmsg;
+allow domain data_attr:file read;
+allow legacy_t data_t:file lock;
+allow server_t data_t:dir open; [ ( c_alpha && c_delta || c_gamma ) ]:True
+allow special_attr data_t:dir { open search };

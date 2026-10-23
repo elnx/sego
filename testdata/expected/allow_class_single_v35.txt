@@ -1,0 +1,6 @@
+allow app_t data_t:file { read write };
+allow app_t log_t:file { read write }; [ ! c_beta && c_alpha ]:True
+allow domain data_attr:file read;
+allow legacy_t data_t:file lock;
+allow plain_t special_attr:file write;
+allow server_t log_t:file read; [ ( c_alpha && c_delta || c_gamma ) ]:True

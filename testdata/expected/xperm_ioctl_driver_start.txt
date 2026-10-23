@@ -1,0 +1,1 @@
+allowxperm server_t config_t:chr_file ioctl 0x1000-0x1010;

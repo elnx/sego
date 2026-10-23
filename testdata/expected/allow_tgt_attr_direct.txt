@@ -1,0 +1,1 @@
+allow plain_t special_attr:file write;

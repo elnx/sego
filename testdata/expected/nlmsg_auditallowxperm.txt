@@ -1,0 +1,2 @@
+auditallowxperm app_t data_t:netlink_socket nlmsg { 0x0005 0x0007 };
+auditallowxperm server_t data_t:netlink_socket nlmsg 0x0042;

@@ -1,0 +1,7 @@
+role_transition r_admin app_t:process r_ops;
+role_transition r_ops config_t:file r_user;
+role_transition r_ops data_t:dir r_admin;
+role_transition r_ops data_t:file r_admin;
+role_transition r_ops data_t:process r_admin;
+role_transition r_ops log_t:file r_user;
+role_transition r_user app_t:process r_ops;

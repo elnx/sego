@@ -1,0 +1,1 @@
+allowxperm domain plain_t:chr_file ioctl 0x5404;

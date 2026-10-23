@@ -1,0 +1,1 @@
+allowxperm domain data_t:netlink_socket nlmsg 0x0001-0x0002;

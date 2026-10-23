@@ -1,0 +1,24 @@
+allow app_t app_t:process sigchld;
+allow app_t config_t:socket connect; [ c_gamma || c_beta ]:True
+allow app_t data_t:file { read write };
+allow app_t data_t:process sigchld; [ ! c_beta && c_alpha ]:True
+allow app_t log_t:file { read write }; [ ! c_beta && c_alpha ]:True
+allow client_t config_t:dir search; [ ! c_beta && c_alpha ]:True
+allow client_t data_t:netlink_socket nlmsg;
+allow client_t log_t:chr_file ioctl;
+allow client_t log_t:dir open; [ c_delta || c_beta ]:True
+allow client_t log_t:dir search; [ c_delta || c_beta ]:False
+allow domain data_attr:file read;
+allow legacy_t data_t:file lock;
+allow plain_t special_attr:file write;
+allow server_t config_t:process fork;
+allow server_t data_t:dir open; [ ( c_alpha && c_delta || c_gamma ) ]:True
+allow server_t log_t:file read; [ ( c_alpha && c_delta || c_gamma ) ]:True
+allow special_attr data_t:dir { open search };
+auditallow app_t data_t:process transition;
+auditallow client_t log_t:file lock;
+auditallow domain special_attr:dir search;
+dontaudit app_t config_t:file write;
+dontaudit app_t plain_t:file write; [ ! c_beta && c_alpha ]:True
+dontaudit domain data_attr:chr_file lock;
+dontaudit server_t plain_t:socket { accept connect };

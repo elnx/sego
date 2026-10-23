@@ -1,0 +1,1 @@
+allow special_attr data_t:dir { open search };

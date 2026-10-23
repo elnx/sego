@@ -1,0 +1,4 @@
+dontaudit app_t config_t:file write;
+dontaudit app_t plain_t:file write; [ ! c_beta && c_alpha ]:True
+dontaudit domain data_attr:chr_file lock;
+dontaudit server_t plain_t:socket { accept connect };

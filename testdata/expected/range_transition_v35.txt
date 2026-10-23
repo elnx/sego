@@ -1,0 +1,6 @@
+range_transition app_t data_t:dir s1 - s3;
+range_transition app_t data_t:file s1;
+range_transition app_t data_t:process s1:c0.c3;
+range_transition app_t data_t:socket s1:c1.c2;
+range_transition client_t data_t:socket s1:c1.c2;
+range_transition server_t data_t:socket s1:c1.c2;
