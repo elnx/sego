@@ -13,18 +13,28 @@ type Sensitivity struct {
 	policy *Policy
 	Name   string
 	Value  uint32
+
+	aliases []string
 }
 
 func (s *Sensitivity) String() string { return s.Name }
+
+// Aliases returns the other names the sensitivity is known by.
+func (s *Sensitivity) Aliases() []string { return s.aliases }
 
 // Category is an MLS category.
 type Category struct {
 	policy *Policy
 	Name   string
 	Value  uint32
+
+	aliases []string
 }
 
 func (c *Category) String() string { return c.Name }
+
+// Aliases returns the other names the category is known by.
+func (c *Category) Aliases() []string { return c.aliases }
 
 // Level is an MLS level: a sensitivity plus a set of categories. Levels loaded
 // from a policy carry a sensitivity value and category values; levels parsed

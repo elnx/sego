@@ -21,19 +21,20 @@ type Policy struct {
 	db   *policy.Policy
 	path string
 
-	types     []*Type // all types and attributes, in policy order
-	attribs   []*Type // only attributes
-	roles     []*Role
-	users     []*User
-	classes   []*Class
-	bools     []*Boolean
-	sens      []*Sensitivity
-	cats      []*Category
-	levels    []*Level
-	teRules   []Rule // TE rules, in policy order
-	rbacRules []Rule // role allow and role_transition rules, in policy order
-	mlsRules  []Rule // range_transition rules, in policy order
-	rulesOnce bool
+	types      []*Type // all types and attributes, in policy order
+	attribs    []*Type // only attributes
+	roles      []*Role
+	users      []*User
+	classes    []*Class
+	bools      []*Boolean
+	sens       []*Sensitivity
+	cats       []*Category
+	levels     []*Level
+	commonObjs []*Common
+	teRules    []Rule // TE rules, in policy order
+	rbacRules  []Rule // role allow and role_transition rules, in policy order
+	mlsRules   []Rule // range_transition rules, in policy order
+	rulesOnce  bool
 
 	byName       map[string]*Type
 	byValue      map[uint32]*Type
@@ -127,6 +128,9 @@ func New(db *policy.Policy, path string) *Policy {
 		}
 		cls := &Class{policy: p, Name: c.Name, Value: c.Value, Common: c.Common}
 		cls.perms = p.permNames(c)
+		for _, pm := range c.Perms {
+			cls.ownPerms = append(cls.ownPerms, pm.Name)
+		}
 		p.classes = append(p.classes, cls)
 		p.classByValue[cls.Value] = cls
 	}
@@ -142,14 +146,14 @@ func New(db *policy.Policy, path string) *Policy {
 		if l == nil {
 			continue
 		}
-		p.sens = append(p.sens, &Sensitivity{policy: p, Name: l.Name, Value: l.Sens})
+		p.sens = append(p.sens, &Sensitivity{policy: p, Name: l.Name, Value: l.Sens, aliases: l.Aliases})
 		p.levels = append(p.levels, &Level{policy: p, sens: l.Sens, cats: l.Cats})
 	}
 	for _, c := range db.Cats {
 		if c == nil {
 			continue
 		}
-		p.cats = append(p.cats, &Category{policy: p, Name: c.Name, Value: c.Value})
+		p.cats = append(p.cats, &Category{policy: p, Name: c.Name, Value: c.Value, aliases: c.Aliases})
 	}
 	return p
 }
@@ -281,7 +285,8 @@ type Class struct {
 	Value  uint32
 	Common string
 
-	perms []string
+	perms    []string // merged permission names, common first, in value order
+	ownPerms []string // the class's own permission names, in value order
 }
 
 func (c *Class) String() string { return c.Name }
@@ -349,6 +354,16 @@ func (p *Policy) TypeByName(name string) (*Type, error) {
 		return t, nil
 	}
 	return nil, fmt.Errorf("%s is not a valid type attribute", name)
+}
+
+// LookupType returns the type (not an attribute) with the given name, with
+// setools' lookup_type() diagnostics. The graph analyses resolve their type
+// criteria through this lookup.
+func (p *Policy) LookupType(name string) (*Type, error) {
+	if t, ok := p.byName[name]; ok && !t.IsAttribute {
+		return t, nil
+	}
+	return nil, fmt.Errorf("%s is not a valid type", name)
 }
 
 // TypeAttributeByName returns the attribute with the given name.
