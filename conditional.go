@@ -84,6 +84,55 @@ func (c *Conditional) String() string {
 	return c.statement
 }
 
+// Evaluate evaluates the conditional expression. Booleans that the states map
+// does not carry use the policy's default state, as setools does.
+func (c *Conditional) Evaluate(states map[string]bool) bool {
+	var stack []bool
+	// value returns the Boolean's state, from the map or the policy default.
+	value := func(v uint32) bool {
+		name := c.policy.boolName(v)
+		if state, ok := states[name]; ok {
+			return state
+		}
+		if b := c.policy.boolValue(v); b != nil {
+			return b.State()
+		}
+		return false
+	}
+	pop := func() bool {
+		if len(stack) == 0 {
+			return false
+		}
+		v := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		return v
+	}
+	for _, e := range c.exprs {
+		switch e.ExprType {
+		case policy.CondBool:
+			stack = append(stack, value(e.Boolean))
+		case policy.CondNot:
+			stack = append(stack, !pop())
+		case policy.CondOr:
+			b, a := pop(), pop()
+			stack = append(stack, a || b)
+		case policy.CondAnd:
+			b, a := pop(), pop()
+			stack = append(stack, a && b)
+		case policy.CondXor:
+			b, a := pop(), pop()
+			stack = append(stack, a != b)
+		case policy.CondEq:
+			b, a := pop(), pop()
+			stack = append(stack, a == b)
+		case policy.CondNeq:
+			b, a := pop(), pop()
+			stack = append(stack, a != b)
+		}
+	}
+	return pop()
+}
+
 func condOperator(exprType uint32) (string, int) {
 	switch exprType {
 	case policy.CondOr:
