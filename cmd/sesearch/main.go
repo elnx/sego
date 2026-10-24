@@ -39,22 +39,24 @@ func run(argv []string, stdout, stderr io.Writer) int {
 			prog = base
 		}
 	}
-	p := newParser(prog)
+	p, ruleTypes := newParser(prog)
 
-	opts, err := p.parse(argv[1:])
+	raw, err := p.Parse(argv[1:])
 	if err != nil {
-		return p.error(stderr, err)
+		return p.Error(stderr, err)
 	}
-	if opts.showVersion {
+	if raw.VersionRequested() {
 		fmt.Fprintln(stdout, version)
 		return 0
 	}
-	if opts.showHelp {
-		fmt.Fprint(stdout, p.help())
+	if raw.HelpRequested() {
+		p.HelpTo(stdout)
 		return 0
 	}
+	opts := &args{Args: raw}
+	opts.collect(ruleTypes)
 	if err := opts.validate(); err != nil {
-		return p.error(stderr, err)
+		return p.Error(stderr, err)
 	}
 
 	out := bufio.NewWriter(stdout)
@@ -145,43 +147,43 @@ func terCriteria(q *sego.TERuleQuery, a *args) error {
 	// source, both before the class, permission, extended permission and
 	// Boolean criteria. When more than one criterion is invalid, this is
 	// the order the errors are reported in.
-	if tgt := a.value("target"); tgt != "" {
-		if err := q.SetTarget(tgt, !a.flag("target_direct"), a.flag("target_regex")); err != nil {
+	if tgt := a.Value("target"); tgt != "" {
+		if err := q.SetTarget(tgt, !a.Flag("target_direct"), a.Flag("target_regex")); err != nil {
 			return err
 		}
 	}
-	if src := a.value("source"); src != "" {
-		if err := q.SetSource(src, !a.flag("source_direct"), a.flag("source_regex")); err != nil {
+	if src := a.Value("source"); src != "" {
+		if err := q.SetSource(src, !a.Flag("source_direct"), a.Flag("source_regex")); err != nil {
 			return err
 		}
 	}
-	q.SetPermsEqual(a.flag("perms_equal"))
-	q.SetPermsSubset(a.flag("perms_subset"))
-	if def := a.value("default"); def != "" {
-		if err := q.SetDefault(def, a.flag("default_regex")); err != nil {
+	q.SetPermsEqual(a.Flag("perms_equal"))
+	q.SetPermsSubset(a.Flag("perms_subset"))
+	if def := a.Value("default"); def != "" {
+		if err := q.SetDefault(def, a.Flag("default_regex")); err != nil {
 			return err
 		}
 	}
-	q.SetBooleanEqual(a.flag("boolean_equal"))
-	if tclass := a.value("tclass"); tclass != "" {
-		if err := setTClass(tclass, a.flag("tclass_regex"), q.SetClasses, q.SetClassPattern); err != nil {
+	q.SetBooleanEqual(a.Flag("boolean_equal"))
+	if tclass := a.Value("tclass"); tclass != "" {
+		if err := setTClass(tclass, a.Flag("tclass_regex"), q.SetClasses, q.SetClassPattern); err != nil {
 			return err
 		}
 	}
-	if perms := a.value("perms"); perms != "" {
+	if perms := a.Value("perms"); perms != "" {
 		if err := q.SetPerms(strings.Split(perms, ",")); err != nil {
 			return err
 		}
 	}
-	if xperms := a.value("xperms"); xperms != "" {
+	if xperms := a.Value("xperms"); xperms != "" {
 		set, err := sego.ParseXPermSet(xperms)
 		if err != nil {
 			return err
 		}
-		q.SetXPerms(set, a.flag("xperms_equal"))
+		q.SetXPerms(set, a.Flag("xperms_equal"))
 	}
-	if cond := a.value("boolean"); cond != "" {
-		if a.flag("boolean_regex") {
+	if cond := a.Value("boolean"); cond != "" {
+		if a.Flag("boolean_regex") {
 			if err := q.SetBooleanPattern(cond); err != nil {
 				return err
 			}
@@ -204,46 +206,46 @@ func terCriteria(q *sego.TERuleQuery, a *args) error {
 
 // rbacCriteria sets the role based access control criteria.
 func rbacCriteria(q *sego.RBACRuleQuery, a *args) error {
-	if tgt := a.value("target"); tgt != "" {
-		if err := q.SetTarget(tgt, a.flag("target_regex")); err != nil {
+	if tgt := a.Value("target"); tgt != "" {
+		if err := q.SetTarget(tgt, a.Flag("target_regex")); err != nil {
 			return err
 		}
 	}
-	if src := a.value("source"); src != "" {
-		if err := q.SetSource(src, a.flag("source_regex")); err != nil {
+	if src := a.Value("source"); src != "" {
+		if err := q.SetSource(src, a.Flag("source_regex")); err != nil {
 			return err
 		}
 	}
-	if def := a.value("default"); def != "" {
-		if err := q.SetDefault(def, a.flag("default_regex")); err != nil {
+	if def := a.Value("default"); def != "" {
+		if err := q.SetDefault(def, a.Flag("default_regex")); err != nil {
 			return err
 		}
 	}
-	if tclass := a.value("tclass"); tclass != "" {
-		return setTClass(tclass, a.flag("tclass_regex"), q.SetClasses, q.SetClassPattern)
+	if tclass := a.Value("tclass"); tclass != "" {
+		return setTClass(tclass, a.Flag("tclass_regex"), q.SetClasses, q.SetClassPattern)
 	}
 	return nil
 }
 
 // mlsCriteria sets the MLS criteria.
 func mlsCriteria(q *sego.MLSRuleQuery, a *args) error {
-	if tgt := a.value("target"); tgt != "" {
-		if err := q.SetTarget(tgt, !a.flag("target_direct"), a.flag("target_regex")); err != nil {
+	if tgt := a.Value("target"); tgt != "" {
+		if err := q.SetTarget(tgt, !a.Flag("target_direct"), a.Flag("target_regex")); err != nil {
 			return err
 		}
 	}
-	if src := a.value("source"); src != "" {
-		if err := q.SetSource(src, !a.flag("source_direct"), a.flag("source_regex")); err != nil {
+	if src := a.Value("source"); src != "" {
+		if err := q.SetSource(src, !a.Flag("source_direct"), a.Flag("source_regex")); err != nil {
 			return err
 		}
 	}
-	if def := a.value("default"); def != "" {
+	if def := a.Value("default"); def != "" {
 		if err := q.SetRange(def); err != nil {
 			return err
 		}
 	}
-	if tclass := a.value("tclass"); tclass != "" {
-		return setTClass(tclass, a.flag("tclass_regex"), q.SetClasses, q.SetClassPattern)
+	if tclass := a.Value("tclass"); tclass != "" {
+		return setTClass(tclass, a.Flag("tclass_regex"), q.SetClasses, q.SetClassPattern)
 	}
 	return nil
 }

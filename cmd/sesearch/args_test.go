@@ -120,8 +120,8 @@ func runSesearch(argv ...string) (int, string, string) {
 }
 
 func TestUsage(t *testing.T) {
-	p := newParser("sesearch")
-	if got := p.usage(); got != goldenUsage {
+	p, _ := newParser("sesearch")
+	if got := p.Usage(); got != goldenUsage {
 		t.Errorf("usage = %q, want %q", got, goldenUsage)
 	}
 }
@@ -252,25 +252,25 @@ func TestOptionParsing(t *testing.T) {
 			}},
 		{"separated value", []string{"--allow", "-s", "app_t"},
 			func(t *testing.T, a *args) {
-				if got := a.value("source"); got != "app_t" {
+				if got := a.Value("source"); got != "app_t" {
 					t.Errorf("source = %q, want %q", got, "app_t")
 				}
 			}},
 		{"attached short value", []string{"--allow", "-sapp_t"},
 			func(t *testing.T, a *args) {
-				if got := a.value("source"); got != "app_t" {
+				if got := a.Value("source"); got != "app_t" {
 					t.Errorf("source = %q, want %q", got, "app_t")
 				}
 			}},
 		{"equals value", []string{"--allow", "--source=app_t"},
 			func(t *testing.T, a *args) {
-				if got := a.value("source"); got != "app_t" {
+				if got := a.Value("source"); got != "app_t" {
 					t.Errorf("source = %q, want %q", got, "app_t")
 				}
 			}},
 		{"abbreviated option", []string{"--allow", "--sou", "app_t"},
 			func(t *testing.T, a *args) {
-				if got := a.value("source"); got != "app_t" {
+				if got := a.Value("source"); got != "app_t" {
 					t.Errorf("source = %q, want %q", got, "app_t")
 				}
 			}},
@@ -279,7 +279,7 @@ func TestOptionParsing(t *testing.T) {
 				for _, dest := range []string{"perms_subset", "tclass_regex", "source_direct", "target_direct",
 					"boolean_equal", "perms_equal", "xperms_equal", "boolean_regex", "source_regex",
 					"target_regex", "default_regex"} {
-					if !a.flag(dest) {
+					if !a.Flag(dest) {
 						t.Errorf("%s was not set", dest)
 					}
 				}
@@ -305,13 +305,23 @@ func TestOptionParsing(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a, err := newParser("sesearch").parse(tt.argv)
-			if err != nil {
-				t.Fatalf("parse(%v): %v", tt.argv, err)
-			}
-			tt.check(t, a)
+			tt.check(t, parseArgs(t, tt.argv))
 		})
 	}
+}
+
+// parseArgs parses argv the way run does: it builds the parser, parses the
+// arguments and collects the rule types.
+func parseArgs(t *testing.T, argv []string) *args {
+	t.Helper()
+	p, ruleTypes := newParser("sesearch")
+	raw, err := p.Parse(argv)
+	if err != nil {
+		t.Fatalf("parse(%v): %v", argv, err)
+	}
+	a := &args{Args: raw}
+	a.collect(ruleTypes)
+	return a
 }
 
 func equalRuleTypes(got, want []sego.RuleType) bool {
@@ -405,8 +415,8 @@ func TestBooleanSubsDistPath(t *testing.T) {
 // the way argparse does.
 func TestHelpWidth(t *testing.T) {
 	t.Setenv("COLUMNS", "60")
-	p := newParser("sesearch")
-	help := p.help()
+	p, _ := newParser("sesearch")
+	help := p.Help()
 	for line := range strings.SplitSeq(strings.TrimSuffix(help, "\n"), "\n") {
 		if len(line) > 58 {
 			t.Errorf("line %q is longer than the requested width", line)
