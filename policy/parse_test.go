@@ -23,8 +23,10 @@ func TestParseFixtures(t *testing.T) {
 			if p.Version < VersionMin || p.Version > VersionMax {
 				t.Errorf("version %d out of range", p.Version)
 			}
-			if p.Target != targetSELinux {
-				t.Errorf("target = %q, want %q", p.Target, targetSELinux)
+			// The corpus holds SELinux and Xen policies; the reader
+			// supports both targets.
+			if p.Target != TargetSELinux && p.Target != TargetXen {
+				t.Errorf("target = %q, want %q or %q", p.Target, TargetSELinux, TargetXen)
 			}
 			if len(p.Types) == 0 || len(p.Classes) == 0 || len(p.Roles) == 0 {
 				t.Fatalf("policy has %d types, %d classes, %d roles",

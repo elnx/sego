@@ -139,7 +139,7 @@ func readFilenameTrans(r *reader, version uint32, target string) []FilenameTrans
 		return nil
 	}
 	out := make([]FilenameTrans, 0, nel)
-	if version < VersionCompFtrans || target != targetSELinux {
+	if version < VersionCompFtrans || target != TargetSELinux {
 		// Uncompressed form: one record per (name, source type) pair.
 		for range nel {
 			name := r.str()

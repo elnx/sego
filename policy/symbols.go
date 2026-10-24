@@ -89,14 +89,50 @@ func (p *Policy) putLevel(r *reader, l *Level) {
 	for len(p.Levels) < int(l.Sens) {
 		p.Levels = append(p.Levels, nil)
 	}
-	if r.err == nil {
+	if r.err != nil {
+		return
+	}
+	// Alias records share the value of the sensitivity they alias, so they
+	// are folded into the primary datum's alias list whatever order they
+	// appear in.
+	slot := p.Levels[l.Sens-1]
+	if slot == nil {
+		p.Levels[l.Sens-1] = l
+		return
+	}
+	if l.IsAlias {
+		slot.Aliases = append(slot.Aliases, l.Name)
+		return
+	}
+	if slot.IsAlias {
+		// The primary datum arrived after one or more of its aliases.
+		l.Aliases = append(l.Aliases, slot.Name)
+		l.Aliases = append(l.Aliases, slot.Aliases...)
 		p.Levels[l.Sens-1] = l
 	}
 }
 
 func (p *Policy) putCat(r *reader, c *Cat) {
 	p.Cats = growTo(r, p.Cats, c.Value, "category")
-	if r.err == nil {
+	if r.err != nil {
+		return
+	}
+	// Alias records share the value of the category they alias, so they are
+	// folded into the primary datum's alias list whatever order they appear
+	// in.
+	slot := p.Cats[c.Value-1]
+	if slot == nil {
+		p.Cats[c.Value-1] = c
+		return
+	}
+	if c.IsAlias {
+		slot.Aliases = append(slot.Aliases, c.Name)
+		return
+	}
+	if slot.IsAlias {
+		// The primary datum arrived after one or more of its aliases.
+		c.Aliases = append(c.Aliases, slot.Name)
+		c.Aliases = append(c.Aliases, slot.Aliases...)
 		p.Cats[c.Value-1] = c
 	}
 }

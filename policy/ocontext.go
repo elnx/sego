@@ -1,6 +1,38 @@
 package policy
 
 // Object context, genfscon and type_attr_map readers (the tail of the file).
+//
+// Binary kernel policies do not store initial SID names; they are looked up
+// in the fixed tables below, indexed by the SID value, exactly as libsepol
+// and the reference tools do.
+
+// selinuxSidNames holds the SELinux initial SID names by SID value.
+var selinuxSidNames = [...]string{
+	"undefined", "kernel", "security", "unlabeled", "fs", "file", "file_labels",
+	"init", "any_socket", "port", "netif", "netmsg", "node", "igmp_packet", "icmp_socket",
+	"tcp_socket", "sysctl_modprobe", "sysctl", "sysctl_fs", "sysctl_kernel", "sysctl_net",
+	"sysctl_net_unix", "sysctl_vm", "sysctl_dev", "kmod", "policy", "scmp_packet", "devnull",
+}
+
+// xenSidNames holds the Xen initial SID names by SID value.
+var xenSidNames = [...]string{
+	"xen", "dom0", "domxen", "domio", "unlabeled", "security", "irq", "iomem", "ioport",
+	"device", "domU", "domDM",
+}
+
+func selinuxSidName(sid uint32) string {
+	if int(sid) < len(selinuxSidNames) {
+		return selinuxSidNames[sid]
+	}
+	return ""
+}
+
+func xenSidName(sid uint32) string {
+	if int(sid) < len(xenSidNames) {
+		return xenSidNames[sid]
+	}
+	return ""
+}
 
 func readOContexts(r *reader, oconNum int) OContexts {
 	var o OContexts
@@ -12,8 +44,10 @@ func readOContexts(r *reader, oconNum int) OContexts {
 		for range nel {
 			switch i {
 			case OConISid:
+				sid := r.u32()
 				o.ISids = append(o.ISids, ISidContext{
-					SID:     r.u32(),
+					SID:     sid,
+					Name:    selinuxSidName(sid),
 					Context: readContext(r),
 				})
 			case OConFS, OConNetif:
@@ -145,8 +179,10 @@ func readXenOContexts(r *reader, oconNum int) XenOContexts {
 		for range nel {
 			switch i {
 			case 0: // OCON_XEN_ISID
+				sid := r.u32()
 				o.ISids = append(o.ISids, ISidContext{
-					SID:     r.u32(),
+					SID:     sid,
+					Name:    xenSidName(sid),
 					Context: readContext(r),
 				})
 			case 1: // OCON_XEN_PIRQ

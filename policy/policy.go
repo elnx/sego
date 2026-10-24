@@ -31,8 +31,9 @@ const (
 
 // Target platform strings, as stored in the policy file header.
 const (
-	targetSELinux = "SE Linux"
-	targetXen     = "Xen"
+	// TargetSELinux and TargetXen are the two target platforms.
+	TargetSELinux = "SE Linux"
+	TargetXen     = "XenFlask"
 )
 
 // Symbol table indices, matching libsepol's SYM_* values.
@@ -68,10 +69,11 @@ const (
 	OConIBEndPort
 )
 
-// PolicyDB config flags.
+// PolicyDB config flags. The unknown-permission handling occupies bits 1-2
+// (values 0, 2 and 4), as libsepol's POLICYDB_CONFIG_UNKNOWN_MASK does.
 const (
 	ConfigMLS         = 0x1
-	ConfigUnknownMask = 0x0300
+	ConfigUnknownMask = 0x06
 )
 
 // AVRule kind bits (avtab key "specified" field).
@@ -287,6 +289,10 @@ type Level struct {
 	IsAlias bool
 	Sens    uint32
 	Cats    []uint32
+
+	// Aliases holds the other names the sensitivity is known by, collected
+	// from the alias records that share its value.
+	Aliases []string
 }
 
 // Cat is an MLS category.
@@ -294,6 +300,10 @@ type Cat struct {
 	Name    string
 	Value   uint32
 	IsAlias bool
+
+	// Aliases holds the other names the category is known by, collected
+	// from the alias records that share its value.
+	Aliases []string
 }
 
 // Range is an MLS range (low and high level).
@@ -420,9 +430,12 @@ type OContexts struct {
 	Xen XenOContexts
 }
 
-// ISidContext is an initial SID context.
+// ISidContext is an initial SID context. Name comes from the fixed SID name
+// table for the policy's target platform, since binary policies do not store
+// it.
 type ISidContext struct {
 	SID     uint32
+	Name    string
 	Context Context
 }
 
@@ -566,7 +579,7 @@ func Parse(data []byte) (*Policy, error) {
 	}
 	target := string(r.bytes(int(identLen)))
 	p.Target = target
-	if target != targetSELinux && target != targetXen {
+	if target != TargetSELinux && target != TargetXen {
 		return nil, fmt.Errorf("unknown policy target %q", target)
 	}
 
@@ -596,7 +609,7 @@ func Parse(data []byte) (*Policy, error) {
 
 	p.PolicyCaps = r.bitmap()
 	p.Permissive = r.bitmap()
-	if p.Version >= VersionNeverAudit && p.Target == targetSELinux {
+	if p.Version >= VersionNeverAudit && p.Target == TargetSELinux {
 		p.NeverAudit = r.bitmap()
 	}
 	if err := r.err; err != nil {
@@ -625,7 +638,7 @@ func Parse(data []byte) (*Policy, error) {
 	p.RoleTrans = readRoleTrans(r)
 	p.RoleAllows = readRoleAllows(r)
 	p.FilenameTrans = readFilenameTrans(r, p.Version, p.Target)
-	if p.Target == targetXen {
+	if p.Target == TargetXen {
 		p.OContexts.Xen = readXenOContexts(r, int(oconNum))
 	} else {
 		p.OContexts = readOContexts(r, int(oconNum))
@@ -645,7 +658,7 @@ func Parse(data []byte) (*Policy, error) {
 }
 
 func symCounts(version uint32, target string) (int, int) {
-	if target == targetXen {
+	if target == TargetXen {
 		return SymNum, oconXen
 	}
 	if version >= VersionInfiniband {
