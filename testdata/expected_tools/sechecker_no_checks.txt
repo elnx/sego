@@ -1,0 +1,1 @@
+No checks found in testdata/checker/no-checks.ini.

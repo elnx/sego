@@ -1,0 +1,6 @@
+Transition 1: a_t -> b_t
+
+Transition 2: plain_t -> b_t
+
+
+2 domain transition(s) found.

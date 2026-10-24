@@ -1,0 +1,30 @@
+Transition 1: a_t -> plain_t
+
+Dynamic transition rule(s):
+allow a_t plain_t:process dyntransition;
+
+Set current process context rule(s):
+allow a_t a_t:process { fork setcurrent setexec };
+
+
+Transition 2: a_t -> b_t
+
+Domain transition rule(s):
+allow a_t b_t:process transition;
+
+Set execution context rule(s):
+allow a_t a_t:process { fork setcurrent setexec };
+
+Entrypoint ep1_t:
+	Domain entrypoint rule(s):
+	allow b_t ep1_t:file entrypoint;
+
+	File execute rule(s):
+	allow a_t ep1_t:file execute;
+
+	Type transition rule(s):
+	type_transition a_t ep1_t:process b_t;
+
+
+
+2 domain transition(s) found.

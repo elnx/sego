@@ -1,0 +1,12 @@
+Transition 1: a_t -> plain_t
+
+Transition 2: a_t -> b_t
+
+
+2 domain transition(s) found.
+
+Graph statistics:
+nx.number_of_nodes(self.G)=4
+nx.number_of_edges(self.G)=4
+len(self.G)=4
+

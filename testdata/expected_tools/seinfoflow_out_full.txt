@@ -1,0 +1,9 @@
+Flow 1: app_t -> data_t
+   allow app_t data_t:file { read write };
+   allow app_t data_t:process sigchld; [ ! c_beta && c_alpha ]:True
+
+Flow 2: app_t -> log_t
+   allow app_t log_t:file { read write }; [ ! c_beta && c_alpha ]:True
+
+
+2 information flow(s) found.

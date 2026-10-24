@@ -1,0 +1,103 @@
+---------------------------------------------------------
+
+Policy check configuration: testdata/checker/checks.ini
+Policy being checked: testdata/policies/sego_test-v32.pol
+
+---------------------------------------------------------
+
+Check name: te_allow
+
+Description: Assert app_t can read data_t files.
+
+    * allow domain data_attr:file read;
+    * allow server_t log_t:file read; [ ( c_alpha && c_delta || c_gamma ) ]:True
+
+Check FAILED
+
+---------------------------------------------------------
+
+Check name: te_exempt
+
+Description: Assert no rule grants write access except the exempt source.
+
+    * allow plain_t special_attr:file write;
+
+Check FAILED
+
+---------------------------------------------------------
+
+Check name: rbac
+
+
+Check PASSED
+
+---------------------------------------------------------
+
+Check name: empty_attr
+
+Description: Verify that the data_attr attribute is empty.
+
+Member types of data_attr:
+    * data_t
+    * log_t
+
+Check FAILED
+
+---------------------------------------------------------
+
+Check name: missing_attr
+
+    nosuch_attr does not exist.
+
+Check PASSED
+
+---------------------------------------------------------
+
+Check name: ro_execs
+
+Description: Verify that executables are read-only.
+
+Unexpected error: Permission(s) do not exist in the specified classes: append.  Failing check.
+
+Check FAILED
+
+---------------------------------------------------------
+
+Check name: ro_execs_exempt
+
+Unexpected error: Permission(s) do not exist in the specified classes: append.  Failing check.
+
+Check FAILED
+
+---------------------------------------------------------
+
+Check name: ro_kmods
+
+Unexpected error: Permission(s) do not exist in the specified classes: append.  Failing check.
+
+Check FAILED
+
+---------------------------------------------------------
+
+Check name: disabled
+
+Check DISABLED.  Reason: not needed in this build
+
+---------------------------------------------------------
+
+Result Summary:
+
+te_allow                                FAILED (2 failures)
+te_exempt                               FAILED (1 failures)
+rbac                                    PASSED
+empty_attr                              FAILED (2 failures)
+missing_attr                            PASSED
+ro_execs                                FAILED (1 failures)
+ro_execs_exempt                         FAILED (1 failures)
+ro_kmods                                FAILED (1 failures)
+disabled                                DISABLED (not needed in this build)
+
+8 failure(s) found.
+
+Policy check configuration: testdata/checker/checks.ini
+Policy being checked: testdata/policies/sego_test-v32.pol

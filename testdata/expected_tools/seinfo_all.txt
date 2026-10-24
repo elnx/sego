@@ -1,0 +1,123 @@
+Statistics for policy file: testdata/policies/sego_test-v32.pol
+Policy Version:             32 (MLS enabled)
+Target Policy:              selinux
+Handle unknown classes:     reject
+  Classes:               6    Permissions:          15
+  Sensitivities:         4    Categories:            4
+  Types:                 9    Attributes:            4
+  Users:                 3    Roles:                 4
+  Booleans:              4    Cond. Expr.:           4
+  Allow:                17    Neverallow:            0
+  Auditallow:            3    Dontaudit:             4
+  Type_trans:            8    Type_change:           4
+  Type_member:           4    Range_trans:           6
+  Role allow:            3    Role_trans:            7
+  Constraints:           0    Validatetrans:         0
+  MLS Constrain:         2    MLS Val. Tran:         1
+  Permissives:           0    Polcap:                0
+  Defaults:              0    Typebounds:            0
+  Allowxperm:            5    Neverallowxperm:       0
+  Auditallowxperm:       1    Dontauditxperm:        1
+  Ibendportcon:          0    Ibpkeycon:             0
+  Initial SIDs:          3    Fs_use:                3
+  Genfscon:              0    Portcon:               2
+  Netifcon:              0    Nodecon:               2
+
+Booleans: 4
+   c_alpha
+   c_beta
+   c_delta
+   c_gamma
+
+Categories: 4
+   c0
+   c1
+   c2
+   c3
+
+Classes: 6
+   chr_file
+   dir
+   file
+   netlink_socket
+   process
+   socket
+
+Commons: 2
+   file_common
+   sock_common
+
+Constraints: 2
+   mlsconstrain dir { open search } (l1 domby l2);
+   mlsconstrain file { read write } (l1 dom l2);
+
+Default rules: 0
+
+Permissive Types: 0
+
+Polcap: 0
+
+Roles: 4
+   object_r
+   r_admin
+   r_ops
+   r_user
+
+Sensitivities: 4
+   s0
+   s1
+   s2
+   s3
+
+Typebounds: 0
+
+Types: 9
+   app_t
+   client_t
+   config_t
+   data_t
+   default_t
+   legacy_t
+   log_t
+   plain_t
+   server_t
+
+Type Attributes: 4
+   data_attr
+   domain
+   legacy_attr
+   special_attr
+
+Users: 3
+   u_admin
+   u_system
+   u_user
+
+Validatetrans: 1
+   mlsvalidatetrans file (l1 == l2 and u1 == u2 and r1 == r2);
+
+Fs_use: 3
+   fs_use_task pipefs u_system:r_admin:app_t:s0;
+   fs_use_trans devpts u_system:r_admin:plain_t:s0;
+   fs_use_xattr ext4 u_system:r_admin:plain_t:s0;
+
+Genfscon: 0
+
+Ibendportcon: 0
+
+Ibpkeycon: 0
+
+Initial SIDs: 3
+   kernel
+   security
+   unlabeled
+
+Netifcon: 0
+
+Nodecon: 2
+   nodecon 10.0.0.0 255.0.0.0 u_system:r_admin:app_t:s0
+   nodecon 127.0.0.1 255.255.255.255 u_system:r_admin:app_t:s0
+
+Portcon: 2
+   portcon tcp 1111 u_system:r_ops:server_t:s0
+   portcon tcp 2222-2224 u_system:r_ops:server_t:s0

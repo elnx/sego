@@ -1,0 +1,90 @@
+---------------------------------------------------------
+
+Policy check configuration: testdata/checker/checks_check.ini
+Policy being checked: testdata/policies/sego_check-v32.pol
+
+---------------------------------------------------------
+
+Check name: te_exec
+
+Description: Assert good_t can execute exec_t.
+
+
+Check PASSED
+
+---------------------------------------------------------
+
+Check name: te_secret
+
+Description: Assert nobody can write exec_t.
+
+
+Check PASSED
+
+---------------------------------------------------------
+
+Check name: ro_execs
+
+Description: Verify that executables are read-only.
+
+
+------------
+
+Executable type exec_t is writable.
+
+Execute rules:
+    * allow good_t exec_t:file { execute read };
+
+Write rules:
+    * allow bad_t exec_t:file { read write };
+
+Check FAILED
+
+---------------------------------------------------------
+
+Check name: ro_execs_exempt
+
+
+Check PASSED
+
+---------------------------------------------------------
+
+Check name: ro_kmods
+
+
+------------
+
+Kernel module type kmod_t is writable.
+
+Module load rules:
+    * allow loader_t kmod_t:system module_load;
+
+Write rules:
+    * allow bad_t kmod_t:file write;
+
+Check FAILED
+
+---------------------------------------------------------
+
+Check name: rbac
+
+    * Expected rule with source "rr1" not found.
+    * Expected rule with target "rr1" not found.
+
+Check FAILED
+
+---------------------------------------------------------
+
+Result Summary:
+
+te_exec                                 PASSED
+te_secret                               PASSED
+ro_execs                                FAILED (1 failures)
+ro_execs_exempt                         PASSED
+ro_kmods                                FAILED (1 failures)
+rbac                                    FAILED (2 failures)
+
+4 failure(s) found.
+
+Policy check configuration: testdata/checker/checks_check.ini
+Policy being checked: testdata/policies/sego_check-v32.pol

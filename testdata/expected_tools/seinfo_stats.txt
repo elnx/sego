@@ -1,0 +1,24 @@
+Statistics for policy file: testdata/policies/sego_diff_a-v32.pol
+Policy Version:             32 (MLS enabled)
+Target Policy:              selinux
+Handle unknown classes:     reject
+  Classes:               3    Permissions:          10
+  Sensitivities:         2    Categories:            2
+  Types:                 5    Attributes:            2
+  Users:                 2    Roles:                 4
+  Booleans:              2    Cond. Expr.:           1
+  Allow:                 3    Neverallow:            0
+  Auditallow:            1    Dontaudit:             1
+  Type_trans:            1    Type_change:           1
+  Type_member:           1    Range_trans:           2
+  Role allow:            1    Role_trans:            3
+  Constraints:           2    Validatetrans:         1
+  MLS Constrain:         1    MLS Val. Tran:         0
+  Permissives:           1    Polcap:                1
+  Defaults:              4    Typebounds:            1
+  Allowxperm:            1    Neverallowxperm:       0
+  Auditallowxperm:       0    Dontauditxperm:        0
+  Ibendportcon:          1    Ibpkeycon:             1
+  Initial SIDs:          3    Fs_use:                2
+  Genfscon:              2    Portcon:               2
+  Netifcon:              1    Nodecon:               2

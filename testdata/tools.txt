@@ -1,0 +1,79 @@
+# The tool query matrix: which command is run with which arguments, and the
+# expected exit status. The recorded reference output of every case is in
+# expected_tools/<case>.txt; see gen_tools_expected.sh for how the goldens are
+# produced.
+#
+# Format (tab separated):
+#   tool <TAB> case name <TAB> arguments <TAB> expected exit status
+#
+# The arguments are split on whitespace; paths are relative to the repository
+# root. The case name is also the file name stem of the expected output, so it
+# must match [A-Za-z0-9_.-]+.
+
+# seinfo
+seinfo	seinfo_stats	testdata/policies/sego_diff_a-v32.pol
+seinfo	seinfo_all	testdata/policies/sego_test-v32.pol --all
+seinfo	seinfo_all_expanded	testdata/policies/sego_test-v32.pol --all -x
+seinfo	seinfo_components	testdata/policies/sego_diff_a-v32.pol -a -b -c -r -u --common --sensitivity --category --permissive --polcap --typebounds --constrain --validatetrans --default -x
+seinfo	seinfo_labeling	testdata/policies/sego_diff_a-v32.pol --initialsid --fs_use --genfscon --portcon --netifcon --nodecon --ibpkeycon --ibendportcon -x
+seinfo	seinfo_types	testdata/policies/sego_test-v32.pol -t
+seinfo	seinfo_types_alias	-t app_alias -x testdata/policies/sego_test-v32.pol
+seinfo	seinfo_types_filter	-t app_t -x testdata/policies/sego_test-v32.pol
+seinfo	seinfo_role_types	testdata/policies/sego_test-v32.pol --role_types app_t
+seinfo	seinfo_flat	testdata/policies/sego_test-v32.pol --flat -t
+seinfo	seinfo_non_mls	policy/testdata/non_mls-v32.pol --all
+seinfo	seinfo_xen	testdata/policies/sego_xen-v30.pol --all -x
+seinfo	seinfo_xen_queries	testdata/policies/sego_xen-v30.pol --pirqcon 4 --ioportcon 0x0011 --pcidevicecon 0x0001 --iomemcon 0x0001 --devicetreecon /xen
+seinfo	seinfo_portcon_error	testdata/policies/sego_test-v32.pol --portcon abc	2
+seinfo	seinfo_xen_on_selinux	testdata/policies/sego_test-v32.pol --pirqcon 4	1
+
+# sediff; the two policies are both part of the arguments.
+sediff	sediff_v30_v32	testdata/policies/sego_test-v30.pol testdata/policies/sego_test-v32.pol
+sediff	sediff_v32_v33	testdata/policies/sego_test-v32.pol testdata/policies/sego_test-v33.pol
+sediff	sediff_components	testdata/policies/sego_diff_a-v32.pol testdata/policies/sego_diff_b-v32.pol --common --class --type --attribute --role --user --bool --sensitivity --category --level --initialsid --fs_use --genfscon --netifcon --nodecon --portcon --ibendportcon --ibpkeycon --default --property --polcap --typebounds --constrain --mlsconstrain --validatetrans --mlsvalidatetrans --role_trans --range_trans
+sediff	sediff_xperm	policy/testdata/xperm-v32.pol policy/testdata/xperm-v35.pol
+sediff	sediff_rbac	policy/testdata/rbac-v32.pol policy/testdata/rbac-v35.pol
+sediff	sediff_non_mls	policy/testdata/non_mls-v32.pol policy/testdata/mls_ranges-v32.pol
+sediff	sediff_stats	testdata/policies/sego_diff_a-v32.pol testdata/policies/sego_diff_b-v32.pol --stats
+sediff	sediff_missing_arg	testdata/policies/sego_test-v32.pol	2
+
+# sedta
+sedta	sedta_out	-p testdata/policies/sego_dta-v32.pol -s a_t
+sedta	sedta_out_full	-p testdata/policies/sego_dta-v32.pol -s a_t --full
+sedta	sedta_in	-p testdata/policies/sego_dta-v32.pol -r -s b_t
+sedta	sedta_in_full	-p testdata/policies/sego_dta-v32.pol -r -s b_t --full
+sedta	sedta_shortest	-p testdata/policies/sego_dta-v32.pol -s a_t -t c_t -S
+sedta	sedta_all	-p testdata/policies/sego_dta-v32.pol -s a_t -t c_t -A 3
+sedta	sedta_all_full	-p testdata/policies/sego_dta-v32.pol -s a_t -t c_t -A 3 --full
+sedta	sedta_limit	-p testdata/policies/sego_dta-v32.pol -s a_t -t c_t -A 3 -l 1
+sedta	sedta_exclude	-p testdata/policies/sego_dta-v32.pol -s a_t ep1_t
+sedta	sedta_exclude_domain	-p testdata/policies/sego_dta-v32.pol -s a_t b_t
+sedta	sedta_stats	-p testdata/policies/sego_dta-v32.pol -s a_t --stats
+sedta	sedta_bad_type	-p testdata/policies/sego_dta-v32.pol -s nosuch	1
+sedta	sedta_a0	-p testdata/policies/sego_dta-v32.pol -s a_t -t c_t -A 0	2
+
+# seinfoflow
+seinfoflow	seinfoflow_out	-p testdata/policies/sego_test-v32.pol -s app_t
+seinfoflow	seinfoflow_out_full	-p testdata/policies/sego_test-v32.pol -s app_t --full
+seinfoflow	seinfoflow_out_w1	-p testdata/policies/sego_test-v32.pol -s app_t -w 1
+seinfoflow	seinfoflow_in	-p testdata/policies/sego_test-v32.pol -s app_t -r -w 1
+seinfoflow	seinfoflow_shortest	-p testdata/policies/sego_test-v32.pol -s app_t -t data_t -S -w 1
+seinfoflow	seinfoflow_all	-p testdata/policies/sego_test-v32.pol -s app_t -t log_t -A 3 -w 1
+seinfoflow	seinfoflow_all_full	-p testdata/policies/sego_test-v32.pol -s app_t -t log_t -A 3 -w 1 --full
+seinfoflow	seinfoflow_bool	-p testdata/policies/sego_test-v32.pol -s app_t -b c_alpha:true -w 1
+seinfoflow	seinfoflow_bool_default	-p testdata/policies/sego_test-v32.pol -s app_t -b default -w 1
+seinfoflow	seinfoflow_stats	-p testdata/policies/sego_test-v32.pol -s app_t --stats -w 1
+seinfoflow	seinfoflow_limit	-p testdata/policies/sego_test-v32.pol -s app_t -l 1 -w 1
+seinfoflow	seinfoflow_exclude	-p testdata/policies/sego_test-v32.pol -s app_t -w 1 log_t
+seinfoflow	seinfoflow_map	-p testdata/policies/sego_test-v32.pol -m testdata/perm_map -s app_t -w 1
+seinfoflow	seinfoflow_diff_a	-p testdata/policies/sego_diff_a-v32.pol -s app_t -w 1
+seinfoflow	seinfoflow_bad_weight	-p testdata/policies/sego_test-v32.pol -s app_t -w 0	1
+seinfoflow	seinfoflow_bad_bool	-p testdata/policies/sego_test-v32.pol -s app_t -b foo	2
+seinfoflow	seinfoflow_target_no_algo	-p testdata/policies/sego_test-v32.pol -s app_t -t data_t	2
+
+# sechecker; the config file is the first argument and the policy the second.
+sechecker	sechecker_checks	testdata/checker/checks.ini testdata/policies/sego_test-v32.pol	1
+sechecker	sechecker_check_policy	testdata/checker/checks_check.ini testdata/policies/sego_check-v32.pol	1
+sechecker	sechecker_invalid_option	testdata/checker/invalid.ini testdata/policies/sego_test-v32.pol	2
+sechecker	sechecker_unknown_type	testdata/checker/unknown-type.ini testdata/policies/sego_test-v32.pol	2
+sechecker	sechecker_no_checks	testdata/checker/no-checks.ini testdata/policies/sego_test-v32.pol	2

@@ -1,0 +1,16 @@
+Domain transition path 1:
+Step 1: a_t -> plain_t
+
+Step 2: plain_t -> b_t
+
+Step 3: b_t -> c_t
+
+
+Domain transition path 2:
+Step 1: a_t -> b_t
+
+Step 2: b_t -> c_t
+
+
+
+2 domain transition path(s) found.

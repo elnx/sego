@@ -1,0 +1,30 @@
+
+Fs_use: 2
+   fs_use_task pipefs u_admin:r_admin:app_t:s0;
+   fs_use_xattr ext4 u_admin:r_admin:plain_t:s0;
+
+Genfscon: 2
+   genfscon proc /sys  u_admin:r_admin:app_t:s0
+   genfscon proc /sys/fs -d u_admin:r_admin:app_t:s0
+
+Ibendportcon: 1
+   ibendportcon mlx5_0 1 u_admin:r_admin:app_t:s0
+
+Ibpkeycon: 1
+   ibpkeycon fe80:: 0x0004 u_admin:r_admin:app_t:s0
+
+Initial SIDs: 3
+   sid kernel u_admin:r_admin:app_t:s0
+   sid security u_admin:r_admin:app_t:s0
+   sid unlabeled u_admin:r_admin:plain_t:s0
+
+Netifcon: 1
+   netifcon eth0 u_admin:r_admin:app_t:s0 u_admin:r_ops:data_t:s0
+
+Nodecon: 2
+   nodecon 10.0.0.0 255.0.0.0 u_admin:r_admin:app_t:s0
+   nodecon 127.0.0.1 255.255.255.255 u_admin:r_admin:plain_t:s0
+
+Portcon: 2
+   portcon tcp 6000-6020 u_admin:r_admin:app_t:s0
+   portcon tcp 80 u_admin:r_admin:plain_t:s0

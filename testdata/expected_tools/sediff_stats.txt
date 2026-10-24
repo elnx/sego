@@ -1,0 +1,48 @@
+Policy Capabilities (1 Added, 1 Removed)
+
+Classes (0 Added, 0 Removed, 1 Modified)
+
+Defaults (0 Added, 0 Removed, 2 Modified)
+
+Booleans (1 Added, 0 Removed, 1 Modified)
+
+Types (0 Added, 0 Removed, 3 Modified)
+
+Users (0 Added, 0 Removed, 1 Modified)
+
+Categories (1 Added, 0 Removed, 0 Modified)
+
+Levels (0 Added, 0 Removed, 1 Modified)
+
+Allow Rules (0 Added, 0 Removed, 1 Modified)
+
+Allowxperm Rules (0 Added, 0 Removed, 1 Modified)
+
+Auditallow Rules (0 Added, 0 Removed, 1 Modified)
+
+Type_transition Rules (0 Added, 0 Removed, 1 Modified)
+
+Role allow Rules (1 Added, 1 Removed)
+
+Role_transition Rules (0 Added, 0 Removed, 1 Modified)
+
+Range_transition Rules (0 Added, 0 Removed, 1 Modified)
+
+Constraints (2 Added, 2 Removed)
+
+MLS Constraints (1 Added, 1 Removed)
+
+Ibendportcons (0 Added, 0 Removed, 1 Modified)
+
+Ibpkeycons (1 Added, 1 Removed, 0 Modified)
+
+Fs_use (0 Added, 0 Removed, 1 Modified)
+
+Genfscons (1 Added, 0 Removed, 1 Modified)
+
+Netifcons (0 Added, 0 Removed, 1 Modified)
+
+Nodecons (1 Added, 1 Removed, 0 Modified)
+
+Portcons (0 Added, 0 Removed, 1 Modified)
+

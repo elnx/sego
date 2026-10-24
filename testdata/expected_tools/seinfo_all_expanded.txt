@@ -1,0 +1,166 @@
+Statistics for policy file: testdata/policies/sego_test-v32.pol
+Policy Version:             32 (MLS enabled)
+Target Policy:              selinux
+Handle unknown classes:     reject
+  Classes:               6    Permissions:          15
+  Sensitivities:         4    Categories:            4
+  Types:                 9    Attributes:            4
+  Users:                 3    Roles:                 4
+  Booleans:              4    Cond. Expr.:           4
+  Allow:                17    Neverallow:            0
+  Auditallow:            3    Dontaudit:             4
+  Type_trans:            8    Type_change:           4
+  Type_member:           4    Range_trans:           6
+  Role allow:            3    Role_trans:            7
+  Constraints:           0    Validatetrans:         0
+  MLS Constrain:         2    MLS Val. Tran:         1
+  Permissives:           0    Polcap:                0
+  Defaults:              0    Typebounds:            0
+  Allowxperm:            5    Neverallowxperm:       0
+  Auditallowxperm:       1    Dontauditxperm:        1
+  Ibendportcon:          0    Ibpkeycon:             0
+  Initial SIDs:          3    Fs_use:                3
+  Genfscon:              0    Portcon:               2
+  Netifcon:              0    Nodecon:               2
+
+Booleans: 4
+   bool c_alpha true;
+   bool c_beta false;
+   bool c_delta false;
+   bool c_gamma true;
+
+Categories: 4
+   category c0;
+   category c1;
+   category c2;
+   category c3;
+
+Classes: 6
+   class chr_file
+inherits file_common
+{
+	ioctl
+}
+   class dir
+inherits file_common
+{
+	open
+	search
+}
+   class file
+inherits file_common
+
+   class netlink_socket
+inherits sock_common
+{
+	nlmsg
+}
+   class process
+{
+	fork
+	sigchld
+	sigkill
+	transition
+}
+   class socket
+inherits sock_common
+{
+	accept
+	connect
+}
+
+Commons: 2
+   common file_common
+{
+	lock
+	read
+	write
+}
+   common sock_common
+{
+	recv
+	send
+}
+
+Constraints: 2
+   mlsconstrain dir { open search } (l1 domby l2);
+   mlsconstrain file { read write } (l1 dom l2);
+
+Default rules: 0
+
+Permissive Types: 0
+
+Polcap: 0
+
+Roles: 4
+   role object_r;
+   role r_admin types { app_t plain_t };
+   role r_ops types server_t;
+   role r_user types client_t;
+
+Sensitivities: 4
+   sensitivity s0;
+   sensitivity s1;
+   sensitivity s2;
+   sensitivity s3;
+
+Typebounds: 0
+
+Types: 9
+   type app_t alias app_alias, domain;
+   type client_t, domain;
+   type config_t, special_attr;
+   type data_t, data_attr;
+   type default_t;
+   type legacy_t;
+   type log_t, data_attr, special_attr;
+   type plain_t;
+   type server_t, domain;
+
+Type Attributes: 4
+   attribute data_attr;
+	data_t
+	log_t
+   attribute domain;
+	app_t
+	client_t
+	server_t
+   attribute legacy_attr;
+	<empty attribute>
+   attribute special_attr;
+	config_t
+	log_t
+
+Users: 3
+   user u_admin roles { r_admin r_ops } level s1 range s1 - s3:c0.c3;
+   user u_system roles { r_admin r_ops r_user } level s0 range s0 - s3:c0.c3;
+   user u_user roles r_user level s0 range s0 - s2:c0.c1;
+
+Validatetrans: 1
+   mlsvalidatetrans file (l1 == l2 and u1 == u2 and r1 == r2);
+
+Fs_use: 3
+   fs_use_task pipefs u_system:r_admin:app_t:s0;
+   fs_use_trans devpts u_system:r_admin:plain_t:s0;
+   fs_use_xattr ext4 u_system:r_admin:plain_t:s0;
+
+Genfscon: 0
+
+Ibendportcon: 0
+
+Ibpkeycon: 0
+
+Initial SIDs: 3
+   sid kernel u_system:r_admin:app_t:s0
+   sid security u_system:r_admin:app_t:s0
+   sid unlabeled u_system:r_admin:plain_t:s0
+
+Netifcon: 0
+
+Nodecon: 2
+   nodecon 10.0.0.0 255.0.0.0 u_system:r_admin:app_t:s0
+   nodecon 127.0.0.1 255.255.255.255 u_system:r_admin:app_t:s0
+
+Portcon: 2
+   portcon tcp 1111 u_system:r_ops:server_t:s0
+   portcon tcp 2222-2224 u_system:r_ops:server_t:s0

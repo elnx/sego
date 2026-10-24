@@ -1,0 +1,78 @@
+
+Booleans: 2
+   bool c_one true;
+   bool c_two false;
+
+Categories: 2
+   category c0;
+   category c1;
+
+Classes: 3
+   class dir
+{
+	open
+	search
+}
+   class file
+inherits file_common
+{
+	append
+	ioctl
+}
+   class process
+{
+	fork
+	sigchld
+	transition
+}
+
+Commons: 1
+   common file_common
+{
+	lock
+	read
+	write
+}
+
+Constraints: 3
+   constrain dir search (t1 != data_t);
+   constrain file read (u1 == u2);
+   mlsconstrain file read (l1 dom l2);
+
+Default rules: 4
+   default_range file target low;
+   default_role file target;
+   default_type file source;
+   default_user file source;
+
+Permissive Types: 1
+   type log_t;
+
+Polcap: 1
+   policycap network_peer_controls;
+
+Roles: 4
+   role object_r;
+   role r_admin types { app_t plain_t };
+   role r_ops types data_t;
+   role r_user;
+
+Sensitivities: 2
+   sensitivity s0;
+   sensitivity s1;
+
+Typebounds: 1
+   typebounds app_t child_t;
+
+Type Attributes: 2
+   attribute data_attr;
+	data_t
+   attribute domain;
+	app_t
+
+Users: 2
+   user u_admin roles { r_admin r_ops } level s0 range s0 - s1;
+   user u_user roles r_user level s0 range s0 - s1:c0;
+
+Validatetrans: 1
+   validatetrans file (u1 == u2 and r1 == r2);

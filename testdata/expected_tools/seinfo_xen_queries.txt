@@ -1,0 +1,15 @@
+
+Devicetreecon: 1
+   devicetreecon /xen system:object_r:xen_t
+
+Iomemcon: 1
+   iomemcon 0x0001 system:object_r:xen_t
+
+Ioportcon: 1
+   ioportcon 0x0011 system:object_r:xen_t
+
+Pcidevicecon: 1
+   pcidevicecon 0x0001 system:object_r:dom0_t
+
+Pirqcon: 1
+   pirqcon 4 system:object_r:xen_t

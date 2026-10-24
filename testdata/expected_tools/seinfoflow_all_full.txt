@@ -1,0 +1,14 @@
+Flow 1:
+  Step 1: app_t -> data_t
+   allow app_t data_t:file { read write };
+   allow app_t data_t:process sigchld; [ ! c_beta && c_alpha ]:True
+
+  Step 2: data_t -> log_t
+   allow special_attr data_t:dir { open search };
+
+Flow 2:
+  Step 1: app_t -> log_t
+   allow app_t log_t:file { read write }; [ ! c_beta && c_alpha ]:True
+
+
+2 information flow(s) found.

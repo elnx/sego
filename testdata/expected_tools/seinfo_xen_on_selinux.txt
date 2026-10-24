@@ -1,0 +1,1 @@
+error: Xen queries specified (--pirqcon), but testdata/policies/sego_test-v32.pol is an SELinux policy.

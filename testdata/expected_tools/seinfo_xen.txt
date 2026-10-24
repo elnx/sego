@@ -1,0 +1,90 @@
+Statistics for policy file: testdata/policies/sego_xen-v30.pol
+Policy Version:             30 (MLS disabled)
+Target Policy:              xen
+Handle unknown classes:     reject
+  Classes:               4    Permissions:           6
+  Sensitivities:         0    Categories:            0
+  Types:                 3    Attributes:            0
+  Users:                 1    Roles:                 2
+  Booleans:              0    Cond. Expr.:           0
+  Allow:                 1    Neverallow:            0
+  Auditallow:            0    Dontaudit:             0
+  Type_trans:            0    Type_change:           0
+  Type_member:           0    Range_trans:           0
+  Role allow:            0    Role_trans:            0
+  Constraints:           0    Validatetrans:         0
+  MLS Constrain:         0    MLS Val. Tran:         0
+  Permissives:           0    Polcap:                0
+  Defaults:              0    Typebounds:            0
+  Initial SIDs:         12    Devicetreecon:         1
+  Iomemcon:              1    Ioportcon:             1
+  Pcidevicecon:          1    Pirqcon:               1
+
+Booleans: 0
+
+Categories: 0
+
+Classes: 4
+   class domain
+{
+	create
+}
+   class hvm
+{
+	getparam
+}
+   class mmu
+{
+	map_read
+	map_write
+}
+   class xen
+{
+	read
+	write
+}
+
+Commons: 0
+
+Constraints: 0
+
+Default rules: 0
+
+Permissive Types: 0
+
+Polcap: 0
+
+Roles: 2
+   role object_r;
+   role rr1 types { dom0_t domU_t xen_t };
+
+Sensitivities: 0
+
+Typebounds: 0
+
+Types: 3
+   type dom0_t;
+   type domU_t;
+   type xen_t;
+
+Type Attributes: 0
+
+Users: 1
+   user system roles rr1;
+
+Validatetrans: 0
+
+Devicetreecon: 1
+   devicetreecon /xen system:object_r:xen_t
+
+Iomemcon: 1
+   iomemcon 0x0001 system:object_r:xen_t
+
+Ioportcon: 1
+   ioportcon 0x0011 system:object_r:xen_t
+
+Pcidevicecon: 1
+   pcidevicecon 0x0001 system:object_r:dom0_t
+
+Pirqcon: 1
+   pirqcon 4 system:object_r:xen_t

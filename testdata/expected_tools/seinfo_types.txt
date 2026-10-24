@@ -1,0 +1,11 @@
+
+Types: 9
+   app_t
+   client_t
+   config_t
+   data_t
+   default_t
+   legacy_t
+   log_t
+   plain_t
+   server_t

@@ -1,0 +1,4 @@
+Flow 1: app_t -> data_t
+Flow 2: app_t -> log_t
+
+2 information flow(s) found.

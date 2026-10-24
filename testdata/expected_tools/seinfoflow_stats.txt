@@ -1,0 +1,11 @@
+Flow 1: app_t -> data_t
+Flow 2: app_t -> config_t
+Flow 3: app_t -> log_t
+
+3 information flow(s) found.
+
+Graph statistics:
+nx.number_of_nodes(self.G)=7
+nx.number_of_edges(self.G)=14
+len(self.G)=7
+

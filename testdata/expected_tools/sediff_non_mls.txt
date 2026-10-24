@@ -1,0 +1,152 @@
+Policy Properties (1 Modified)
+      * MLS +True -False
+
+Classes (2 Added, 0 Removed, 0 Modified)
+   Added Classes: 2
+      + c_alpha
+      + c_beta
+
+Types (19 Added, 0 Removed, 1 Modified)
+   Added Types: 19
+      + mls_attr_tgt
+      + mls_cls
+      + mls_in_both
+      + mls_only_b
+      + mls_src
+      + mls_tgt
+      + mls_tgt2
+      + range_cat
+      + range_exact
+      + range_lowhigh
+      + range_overlap
+      + range_proper_subset
+      + range_proper_super
+      + range_subset
+      + range_superset
+      + src_for_tgt
+      + src_re_plain
+      + src_re_skip_member
+      + src_re_tgt
+   Modified Types: 1
+      * system (1 Removed attributes)
+          Attributes:
+          - domain
+
+Type Attributes (5 Added, 1 Removed, 0 Modified)
+   Added Type Attributes: 5
+      + mls_exempt
+      + src_attr_a
+      + src_attr_b
+      + src_re_a
+      + src_re_skip
+   Removed Type Attributes: 1
+      - domain
+
+Users (1 Added, 1 Removed, 0 Modified)
+   Added Users: 1
+      + u_system
+   Removed Users: 1
+      - system
+
+Categories (5 Added, 0 Removed, 0 Modified)
+   Added Categories: 5
+      + c0
+      + c1
+      + c2
+      + c3
+      + c4
+
+Sensitivities (11 Added, 0 Removed, 0 Modified)
+   Added Sensitivities: 11
+      + s0
+      + s1
+      + s2
+      + s3
+      + s40
+      + s41
+      + s42
+      + s43
+      + s44
+      + s45
+      + s46
+
+Levels (11 Added, 0 Removed, 0 Modified)
+   Added Levels: 11
+      + s0:c0.c4
+      + s1:c0.c4
+      + s2:c0.c4
+      + s3:c0.c4
+      + s40:c0.c4
+      + s41:c0.c4
+      + s42:c0.c4
+      + s43:c0.c4
+      + s44:c0.c4
+      + s45:c0.c4
+      + s46:c0.c4
+
+Allow Rules (1 Added, 1 Removed, 0 Modified)
+   Added Allow Rules: 1
+      + allow system system:c_alpha noop;
+   Removed Allow Rules: 1
+      - allow system system:flow read_high;
+
+Range_transition Rules (19 Added, 0 Removed, 0 Modified)
+   Added Range_transition Rules: 19
+      + range_transition mls_cls mls_cls:c_alpha s2;
+      + range_transition mls_cls mls_cls:c_beta s1;
+      + range_transition mls_cls mls_cls:flow s0;
+      + range_transition mls_in_both mls_attr_tgt:flow s1;
+      + range_transition mls_only_b mls_attr_tgt:flow_extra s2;
+      + range_transition mls_src mls_tgt:flow s0;
+      + range_transition range_cat range_cat:flow s2:c0.c3;
+      + range_transition range_exact range_exact:flow s40:c1 - s40:c0.c4;
+      + range_transition range_lowhigh range_lowhigh:flow s0 - s1:c0;
+      + range_transition range_overlap range_overlap:flow s41:c1 - s41:c1.c3;
+      + range_transition range_proper_subset range_proper_subset:flow s44:c1 - s44:c1.c3;
+      + range_transition range_proper_super range_proper_super:flow s45:c1 - s45:c1.c3;
+      + range_transition range_subset range_subset:flow s42:c1 - s42:c1.c3;
+      + range_transition range_superset range_superset:flow s43:c1 - s43:c1.c3;
+      + range_transition src_for_tgt mls_tgt2:flow s0;
+      + range_transition src_for_tgt mls_tgt2:flow_extra s1;
+      + range_transition src_re_plain src_re_tgt:flow s1;
+      + range_transition src_re_plain src_re_tgt:flow_extra s2;
+      + range_transition src_re_skip_member src_re_tgt:flow s3;
+
+MLS Constraints (1 Added, 0 Removed)
+   Added MLS Constraints: 1
+      + mlsconstrain flow write_high (l1 dom l2 or t1 == mls_exempt);
+
+Initial SIDs (0 Added, 0 Removed, 2 Modified)
+   Modified Initial SIDs: 2
+      * sid kernel +[u_system:system:system:s0] -[system:system:system];
+      * sid security +[u_system:system:system:s0] -[system:system:system];
+
+Fs_use (0 Added, 1 Removed, 2 Modified)
+   Removed Fs_use: 1
+      - fs_use_trans devpts system:object_r:system;
+   Modified Fs_use: 2
+      * fs_use_task pipefs +[u_system:system:system:s0] -[system:object_r:system];
+      * fs_use_xattr ext4 +[u_system:system:system:s0] -[system:object_r:system];
+
+Genfscons (0 Added, 0 Removed, 1 Modified)
+   Modified Genfscons: 1
+      * genfscon proc /  +[u_system:system:system:s0] -[system:object_r:system];
+
+Netifcons (0 Added, 0 Removed, 1 Modified)
+   Modified Netifcons: 1
+      * netif eth0 (Modified Context, Modified Packet Context)
+          Context:
+             + u_system:system:system:s0
+             - system:object_r:system
+          Packet Context:
+             + u_system:system:system:s0
+             - system:object_r:system
+
+Nodecons (0 Added, 0 Removed, 1 Modified)
+   Modified Nodecons: 1
+      * nodecon 127.0.0.1 255.255.255.255 +[u_system:system:system:s0] -[system:object_r:system];
+
+Portcons (0 Added, 0 Removed, 1 Modified)
+   Modified Portcons: 1
+      * portcon tcp 80 +[u_system:system:system:s0] -[system:system:system];
+

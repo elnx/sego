@@ -1,0 +1,87 @@
+Statistics for policy file: policy/testdata/non_mls-v32.pol
+Policy Version:             32 (MLS disabled)
+Target Policy:              selinux
+Handle unknown classes:     reject
+  Classes:               2    Permissions:          11
+  Sensitivities:         0    Categories:            0
+  Types:                 1    Attributes:            1
+  Users:                 1    Roles:                 2
+  Booleans:              0    Cond. Expr.:           0
+  Allow:                 1    Neverallow:            0
+  Auditallow:            0    Dontaudit:             0
+  Type_trans:            0    Type_change:           0
+  Type_member:           0    Range_trans:           0
+  Role allow:            0    Role_trans:            0
+  Constraints:           0    Validatetrans:         0
+  MLS Constrain:         0    MLS Val. Tran:         0
+  Permissives:           0    Polcap:                0
+  Defaults:              0    Typebounds:            0
+  Allowxperm:            0    Neverallowxperm:       0
+  Auditallowxperm:       0    Dontauditxperm:        0
+  Ibendportcon:          0    Ibpkeycon:             0
+  Initial SIDs:          2    Fs_use:                3
+  Genfscon:              1    Portcon:               1
+  Netifcon:              1    Nodecon:               1
+
+Booleans: 0
+
+Categories: 0
+
+Classes: 2
+   flow
+   flow_extra
+
+Commons: 1
+   flow_perm
+
+Constraints: 0
+
+Default rules: 0
+
+Permissive Types: 0
+
+Polcap: 0
+
+Roles: 2
+   object_r
+   system
+
+Sensitivities: 0
+
+Typebounds: 0
+
+Types: 1
+   system
+
+Type Attributes: 1
+   domain
+
+Users: 1
+   system
+
+Validatetrans: 0
+
+Fs_use: 3
+   fs_use_task pipefs system:object_r:system;
+   fs_use_trans devpts system:object_r:system;
+   fs_use_xattr ext4 system:object_r:system;
+
+Genfscon: 1
+   genfscon proc /  system:object_r:system
+
+Ibendportcon: 0
+
+Ibpkeycon: 0
+
+Initial SIDs: 2
+   kernel
+   security
+
+Netifcon: 1
+   netifcon eth0 system:object_r:system system:object_r:system
+
+Nodecon: 1
+   nodecon 127.0.0.1 255.255.255.255 system:object_r:system
+
+Portcon: 1
+   portcon tcp 80 system:system:system

@@ -1,0 +1,3 @@
+
+Types: 1
+   type app_t alias app_alias, domain;

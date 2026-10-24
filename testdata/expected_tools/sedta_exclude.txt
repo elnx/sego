@@ -1,0 +1,4 @@
+Transition 1: a_t -> plain_t
+
+
+1 domain transition(s) found.

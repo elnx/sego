@@ -50,13 +50,20 @@ if [[ ! -x $CHECKPOLICY ]]; then
     exit 1
 fi
 
-# <source stem>:<policy versions to compile it for>
+# <source stem>:<policy versions to compile it for>[:<target platform>]
 # extra_cond_xperm.conf uses extended permissions inside a conditional, which
 # checkpolicy can only represent from policy version 34 on, hence version 35 only.
+# sego_xen.conf is a Xen policy, which checkpolicy only represents at version 30;
+# it is compiled with an explicit -t xen.
 fixtures=(
     "sego_test:30,32,33,35"
     "sego_nlmsg:30,32,33,35"
     "extra_cond_xperm:35"
+    "sego_diff_a:32"
+    "sego_diff_b:32"
+    "sego_dta:32"
+    "sego_check:32"
+    "sego_xen:30:xen"
 )
 
 check=false
@@ -83,7 +90,12 @@ fi
 printf '%-18s %-4s %-9s %s\n' source version size sha256
 for fixture in "${fixtures[@]}"; do
     stem=${fixture%%:*}
-    versions=${fixture#*:}
+    rest=${fixture#*:}
+    versions=${rest%%:*}
+    target=
+    if [[ $rest == *:* ]]; then
+        target=${rest#*:}
+    fi
     src=$src_dir/$stem.conf
     if [[ ! -f $src ]]; then
         echo "gen.sh: missing source $src" >&2
@@ -92,8 +104,18 @@ for fixture in "${fixtures[@]}"; do
     IFS=, read -r -a vers <<< "$versions"
     for ver in "${vers[@]}"; do
         out=$outdir/$stem-v$ver.pol
+        target_flags=()
+        mls_flags=(-M)
+        if [[ -n $target ]]; then
+            target_flags=(-t "$target")
+            # Xen policies are compiled without MLS.
+            if [[ $target == xen ]]; then
+                mls_flags=()
+            fi
+        fi
         # shellcheck disable=SC2086
-        "$CHECKPOLICY" $CHECKPOLICY_FLAGS -c "$ver" -M -U reject -o "$out" "$src"
+        "$CHECKPOLICY" $CHECKPOLICY_FLAGS -c "$ver" "${mls_flags[@]}" -U reject \
+            "${target_flags[@]}" -o "$out" "$src"
         printf '%-18s %-4s %-9s %s\n' "$stem" "v$ver" "$(stat -c%s "$out")" \
                "$(sha256sum "$out" | cut -d' ' -f1)"
         if $check; then

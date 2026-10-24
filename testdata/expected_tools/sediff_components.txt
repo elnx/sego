@@ -1,0 +1,130 @@
+Policy Properties (0 Modified)
+
+Policy Capabilities (1 Added, 1 Removed)
+   Added Policy Capabilities: 1
+      + open_perms
+   Removed Policy Capabilities: 1
+      - network_peer_controls
+
+Commons (0 Added, 0 Removed, 0 Modified)
+
+Classes (0 Added, 0 Removed, 1 Modified)
+   Modified Classes: 1
+      * file (1 Removed permissions)
+          - append
+
+Defaults (0 Added, 0 Removed, 2 Modified)
+   Modified Defaults: 2
+      * default_range file +source -target +high -low;
+      * default_user file +target -source;
+
+Booleans (1 Added, 0 Removed, 1 Modified)
+   Added Booleans: 1
+      + c_three
+   Modified Booleans: 1
+      * c_one (Modified default state)
+          + False
+          - True
+
+Roles (0 Added, 0 Removed, 0 Modified)
+
+Types (0 Added, 0 Removed, 3 Modified)
+   Modified Types: 3
+      * app_t (1 Added aliases)
+          Aliases:
+          + app_alias2
+      * log_t (Removed permissive)
+      * plain_t (Added permissive)
+
+Typebounds (0 Added, 0 Removed, 0 Modified)
+
+Type Attributes (0 Added, 0 Removed, 0 Modified)
+
+Users (0 Added, 0 Removed, 1 Modified)
+   Modified Users: 1
+      * u_admin (1 Removed roles, Modified range)
+          Roles:
+          - r_ops
+          Range:
+          + s0
+          - s0 - s1
+
+Categories (1 Added, 0 Removed, 0 Modified)
+   Added Categories: 1
+      + c2
+
+Sensitivities (0 Added, 0 Removed, 0 Modified)
+
+Levels (0 Added, 0 Removed, 1 Modified)
+   Modified Levels: 1
+      * level s1 (1 Added Categories)
+          + c1
+
+Role_transition Rules (0 Added, 0 Removed, 1 Modified)
+   Modified Role_transition Rules: 1
+      * role_transition r_ops data_t:file +r_user -r_admin;
+
+Range_transition Rules (0 Added, 0 Removed, 1 Modified)
+   Modified Range_transition Rules: 1
+      * range_transition app_t data_t:file +[s0 - s1] -[s1];
+
+Constraints (2 Added, 2 Removed)
+   Added Constraints: 2
+      + constrain dir { open search } (t1 != data_t);
+      + constrain file write (u1 == u2);
+   Removed Constraints: 2
+      - constrain dir search (t1 != data_t);
+      - constrain file read (u1 == u2);
+
+MLS Constraints (1 Added, 1 Removed)
+   Added MLS Constraints: 1
+      + mlsconstrain file { read write } (l1 dom l2);
+   Removed MLS Constraints: 1
+      - mlsconstrain file read (l1 dom l2);
+
+Validatetrans (0 Added, 0 Removed)
+
+MLS Validatetrans (0 Added, 0 Removed)
+
+Initial SIDs (0 Added, 0 Removed, 0 Modified)
+
+Ibendportcons (0 Added, 0 Removed, 1 Modified)
+   Modified Ibendportcons: 1
+      * ibendportcon mlx5_0 1 +[u_admin:r_admin:plain_t:s0] -[u_admin:r_admin:app_t:s0]
+
+Ibpkeycons (1 Added, 1 Removed, 0 Modified)
+   Added Ibpkeycons: 1
+      + ibpkeycon fe80:: 0x0004-0x0008 u_admin:r_admin:plain_t:s0
+   Removed Ibpkeycons: 1
+      - ibpkeycon fe80:: 0x0004 u_admin:r_admin:app_t:s0
+
+Fs_use (0 Added, 0 Removed, 1 Modified)
+   Modified Fs_use: 1
+      * fs_use_xattr ext4 +[u_admin:r_admin:app_t:s0] -[u_admin:r_admin:plain_t:s0];
+
+Genfscons (1 Added, 0 Removed, 1 Modified)
+   Added Genfscons: 1
+      + genfscon sysfs /  u_admin:r_admin:app_t:s0
+   Modified Genfscons: 1
+      * genfscon proc /sys  +[u_admin:r_admin:plain_t:s0] -[u_admin:r_admin:app_t:s0];
+
+Netifcons (0 Added, 0 Removed, 1 Modified)
+   Modified Netifcons: 1
+      * netif eth0 (Modified Context, Modified Packet Context)
+          Context:
+             + u_admin:r_admin:plain_t:s0
+             - u_admin:r_admin:app_t:s0
+          Packet Context:
+             + u_admin:r_admin:app_t:s0
+             - u_admin:r_ops:data_t:s0
+
+Nodecons (1 Added, 1 Removed, 0 Modified)
+   Added Nodecons: 1
+      + nodecon 10.0.0.0 255.255.0.0 u_admin:r_admin:app_t:s0
+   Removed Nodecons: 1
+      - nodecon 10.0.0.0 255.0.0.0 u_admin:r_admin:app_t:s0
+
+Portcons (0 Added, 0 Removed, 1 Modified)
+   Modified Portcons: 1
+      * portcon tcp 80 +[u_admin:r_admin:app_t:s0] -[u_admin:r_admin:plain_t:s0];
+

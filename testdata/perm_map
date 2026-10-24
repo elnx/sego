@@ -1,0 +1,11 @@
+# Small permission map for the seinfoflow tests.
+3
+class file 3
+read r 5
+write w 10
+append w 3
+class process 2
+fork b 4
+transition w 8
+class system 1
+module_load r 10
