@@ -20,7 +20,8 @@ was copied: `policy/` is a Go implementation written for this project.
 Rule rendering, query semantics, diagnostics, exit statuses and the command
 line interface were implemented to match
 [setools](https://github.com/SELinuxProject/setools) (GPL-2.0-only), which is
-the reference for what `sesearch` does. This means:
+the reference for what the tools do (`sesearch`, `seinfo`, `sediff`, `sedta`,
+`seinfoflow` and `sechecker`). This means:
 
 - The *behaviour* matches: which rules a query returns, the order and text of
   the rendered rule statements and the exit statuses. So do the *per-symbol*
@@ -38,6 +39,27 @@ the reference for what `sesearch` does. This means:
   are kept because they are the conventional format.)
 - No setools source file is redistributed here, and none of its Python or
   Cython code was translated.
+- The command line tables, the report and section layouts, the stats block and
+  the check modules of `sechecker` follow the reference tools' interfaces the
+  same way: the flags, section titles and item formats match because scripts
+  and muscle memory depend on them, while the help texts and comments are this
+  project's own.
+
+## The permission map data
+
+`perm_map.txt` is the standard SELinux permission map: the table of object
+class permissions with their information flow directions and weights. It is
+the map shipped with setools/apol (GPL-2.0-only) and is included here as
+*data* so that `seinfoflow`'s default analysis produces the same results as
+the reference. Its provenance is recorded here for the same reason as the
+format facts above: the weights and directions are data the tool's behaviour
+is defined against, not code.
+
+## Graphical output
+
+`sedta -o` and `seinfoflow -o` write a PNG of the result graph by invoking
+graphviz' `dot`, which is also what the reference tool requires (through
+pygraphviz). Graphviz is not distributed with this project.
 
 ## Test data
 

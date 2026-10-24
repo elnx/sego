@@ -15,6 +15,7 @@
 testdata/policies/*.pol   linguist-generated=true
 policy/testdata/*.pol     linguist-generated=true
 testdata/expected/*.txt   linguist-generated=true
+testdata/expected_tools/*.txt linguist-generated=true
 
 # Scripts have to keep LF endings to stay executable, and a Makefile with CRLF
 # is not a valid makefile.
