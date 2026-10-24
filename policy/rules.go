@@ -16,7 +16,7 @@ func readAVTab(r *reader, version uint32) []AVTabEntry {
 		}
 		entries = append(entries, e)
 	}
-	return entries
+	return orderAVTab(entries)
 }
 
 // readAVTabEntry decodes one avtab key/payload pair. It reports false when the
